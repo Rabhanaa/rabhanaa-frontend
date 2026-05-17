@@ -1,0 +1,32 @@
+# Build artifacts and deps — must be installed fresh inside the build
+node_modules
+dist
+dist-ssr
+
+# VCS and CI metadata
+.git
+.github
+.gitignore
+.gitattributes
+
+# Local env files — runtime env is injected by Coolify, never baked into image
+.env
+.env.*
+!.env.example
+
+# Editor / IDE
+.vscode
+.idea
+*.swp
+*.swo
+
+# OS junk
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+npm-debug.log*
+
+# Docs and planning files — not needed by the build
+*.md

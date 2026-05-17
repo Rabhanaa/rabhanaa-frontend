@@ -1,0 +1,134 @@
+@import url("https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;600;700;800&display=swap");
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+html {
+  font-family: "Cairo", sans-serif;
+  text-rendering: optimizeLegibility;
+}
+
+@layer base {
+  :root {
+    --font-sans: "Cairo", ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+
+    --background: 45 17% 97%;
+    --foreground: 0 0% 10%;
+
+    --card: 45 17% 98%;
+    --card-foreground: 0 0% 10%;
+
+    --popover: 45 17% 98%;
+    --popover-foreground: 0 0% 10%;
+
+    /* Open Green */
+    --primary: 158 100% 33%;
+    --primary-foreground: 0 0% 100%;
+
+    /* Deep Forest */
+    --secondary: 154 76% 21%;
+    --secondary-foreground: 0 0% 100%;
+
+    /* Golden Wheat */
+    --accent: 41 87% 65%;
+    --accent-foreground: 154 76% 14%;
+
+    --muted: 45 10% 92%;
+    --muted-foreground: 215 14% 45%;
+
+    --destructive: 0 74% 50%;
+    --destructive-foreground: 0 0% 100%;
+
+    --border: 45 10% 86%;
+    --input: 45 10% 86%;
+    --ring: 158 100% 33%;
+
+    --radius: 0.9rem;
+
+    --shadow-elev: 0 12px 40px -18px hsl(var(--secondary) / 0.45);
+    --shadow-lift: 0 18px 50px -22px hsl(var(--secondary) / 0.55);
+    --grain-opacity: 0.09;
+  }
+
+  .dark {
+    --background: 154 40% 9%;
+    --foreground: 0 0% 98%;
+
+    --card: 154 40% 10%;
+    --card-foreground: 0 0% 98%;
+
+    --popover: 154 40% 10%;
+    --popover-foreground: 0 0% 98%;
+
+    --primary: 158 100% 38%;
+    --primary-foreground: 154 40% 8%;
+
+    --secondary: 154 76% 21%;
+    --secondary-foreground: 0 0% 98%;
+
+    --accent: 41 87% 62%;
+    --accent-foreground: 154 40% 10%;
+
+    --muted: 154 20% 16%;
+    --muted-foreground: 210 12% 70%;
+
+    --border: 154 20% 18%;
+    --input: 154 20% 18%;
+    --ring: 158 100% 38%;
+
+    --grain-opacity: 0.06;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  html {
+    font-family: var(--font-sans);
+  }
+
+  body {
+    @apply bg-background text-foreground;
+    -webkittap-highlight-color: transparent;
+    -webkit-touch-callout: none;
+  }
+
+  html {
+    scroll-behavior: smooth;
+  }
+
+  body::before {
+    content: "";
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    z-index: 0;
+    background-image:
+      radial-gradient(circle at 20% 10%, hsl(var(--foreground) / 0.06), transparent 55%),
+      radial-gradient(circle at 80% 30%, hsl(var(--secondary) / 0.10), transparent 52%),
+      radial-gradient(circle at 40% 90%, hsl(var(--accent) / 0.10), transparent 58%),
+      repeating-linear-gradient(90deg, hsl(var(--foreground) / 0.035) 0 1px, transparent 1px 5px),
+      repeating-linear-gradient(0deg, hsl(var(--foreground) / 0.03) 0 1px, transparent 1px 6px);
+    opacity: var(--grain-opacity);
+    mix-blend-mode: multiply;
+  }
+
+  #root {
+    position: relative;
+    z-index: 1;
+  }
+
+  :focus-visible {
+    outline: 2px solid hsl(var(--ring));
+    outline-offset: 2px;
+  }
+}
+
+@layer utilities {
+  .story-link {
+    @apply transition-colors duration-200 hover:text-secondary;
+  }
+}
