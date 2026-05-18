@@ -50,27 +50,39 @@ export function resolveNotificationLink(
   switch (event) {
     case 'new_bid':
     case 'auction_ended':
-    case 'bid_selected':
     case 'auction_ended_no_bids':
     case 'new_sell_auction':
-    case 'winner_selected':
     case 'bid_not_selected':
+    case 'auction_motivation':
       return auctionId ? `/auctions/sell/${auctionId}` : null
 
     case 'new_offer':
     case 'request_ended':
     case 'new_buy_request':
-    case 'offer_accepted':
     case 'offer_not_accepted':
     case 'request_ended_no_offers':
+    case 'request_motivation':
+      return requestId ? `/auctions/buy/${requestId}` : null
+
+    case 'bid_selected':
+    case 'winner_selected':
+      if (orderId) return `/orders/${orderId}`
+      return auctionId ? `/auctions/sell/${auctionId}` : null
+
+    case 'offer_accepted':
+      if (orderId) return `/orders/${orderId}`
       return requestId ? `/auctions/buy/${requestId}` : null
 
     case 'order_created':
-    case 'order_confirmed':
+    case 'order_cancelled':
     case 'new_order':
     case 'order_completed':
     case 'order_expired':
-      return orderId ? `/orders/${orderId}` : null
+    case 'order_cancelled_timeout':
+      if (orderId) return `/orders/${orderId}`
+      if (auctionId) return `/auctions/sell/${auctionId}`
+      if (requestId) return `/auctions/buy/${requestId}`
+      return null
 
     case 'selection_expiring':
     case 'selection_expired':
@@ -80,6 +92,10 @@ export function resolveNotificationLink(
 
     case 'account_approved':
     case 'account_rejected':
+    case 'account_suspended':
+    case 'account_unsuspended':
+    case 'account_banned':
+    case 'account_unbanned':
       return '/profile'
 
     default:
