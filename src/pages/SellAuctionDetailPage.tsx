@@ -263,7 +263,7 @@ export function SellAuctionDetailPage() {
       </AlertDialog>
 
       {/* 8.7 Success popup */}
-      <AlertDialog open={showSuccessPopup} onOpenChange={setShowSuccessPopup}>
+      <AlertDialog open={showSuccessPopup} onOpenChange={(open) => { if (!open) navigate('/orders'); }}>
         <AlertDialogContent className="rounded-3xl">
           <AlertDialogHeader>
             <div className="flex flex-col items-center gap-3 py-2">
@@ -275,7 +275,7 @@ export function SellAuctionDetailPage() {
             <AlertDialogDescription className="text-center">في انتظار تأكيد الطرف الآخر خلال 30 دقيقة</AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogAction onClick={() => setShowSuccessPopup(false)} className="rounded-xl bg-green-600 hover:bg-green-700 w-full">حسناً</AlertDialogAction>
+            <AlertDialogAction onClick={() => navigate('/orders')} className="rounded-xl bg-green-600 hover:bg-green-700 w-full">الذهاب للطلبات</AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
