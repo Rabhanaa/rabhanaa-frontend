@@ -16,6 +16,7 @@ interface SellAuction {
   public_id: string;
   title: string;
   image_url: string | null;
+  interest_name: string;
   unit_price: number;
   quantity: number;
   unit: string;
@@ -28,6 +29,7 @@ interface BuyRequest {
   public_id: string;
   title: string;
   image_url: string | null;
+  interest_name: string;
   quantity: number;
   unit: string;
   offer_count: number;

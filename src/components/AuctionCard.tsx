@@ -2,12 +2,14 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Clock, Package, Archive } from "lucide-react";
 import { getImageUrl } from "@/lib/api";
+import { categoryIcon } from "@/lib/categoryIcon";
 
 interface SellAuctionCardProps {
   type: "sell";
   public_id: string;
   title: string;
   image_url: string | null;
+  interest_name?: string;
   unit_price: number;
   quantity: number;
   unit: string;
@@ -21,6 +23,7 @@ interface BuyRequestCardProps {
   public_id: string;
   title: string;
   image_url: string | null;
+  interest_name?: string;
   quantity: number;
   unit: string;
   offer_count: number;
@@ -109,7 +112,9 @@ export function AuctionCard(props: AuctionCardProps) {
             />
           ) : (
             <div className="w-full h-full flex items-center justify-center">
-              <span className="text-3xl">📦</span>
+              <span className="text-3xl" role="img" aria-label={props.interest_name || "منتج"}>
+                {categoryIcon(props.interest_name)}
+              </span>
             </div>
           )}
 
