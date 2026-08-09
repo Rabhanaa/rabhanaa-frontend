@@ -154,13 +154,13 @@ export function MyAuctionsPage() {
             ) : sellAuctions.length === 0 ? (
               <div className="text-center py-16 space-y-4">
                 <List size={48} className="text-gray-300 mx-auto mb-3" />
-                <p className="text-gray-900 font-bold text-base">لا توجد مزادات بعد</p>
-                <p className="text-gray-500 text-sm">أنشئ أول مزاد لك وابدأ بالبيع أو الشراء</p>
+                <p className="text-gray-900 font-bold text-base">لا توجد صفقات بعد</p>
+                <p className="text-gray-500 text-sm">أنشئ أول صفقة لك وابدأ بالبيع أو الشراء</p>
                 <button
                   onClick={() => navigate('/create')}
                   className="w-full max-w-xs h-12 bg-green-600 hover:bg-green-700 text-white rounded-2xl font-bold mx-auto block transition-colors"
                 >
-                  أنشئ مزادك الأول
+                  أنشئ صفقتك الأولى
                 </button>
               </div>
             ) : (
@@ -198,13 +198,13 @@ export function MyAuctionsPage() {
             ) : buyRequests.length === 0 ? (
               <div className="text-center py-16 space-y-4">
                 <List size={48} className="text-gray-300 mx-auto mb-3" />
-                <p className="text-gray-900 font-bold text-base">لا توجد مزادات بعد</p>
-                <p className="text-gray-500 text-sm">أنشئ أول مزاد لك وابدأ بالبيع أو الشراء</p>
+                <p className="text-gray-900 font-bold text-base">لا توجد صفقات بعد</p>
+                <p className="text-gray-500 text-sm">أنشئ أول صفقة لك وابدأ بالبيع أو الشراء</p>
                 <button
                   onClick={() => navigate('/create')}
                   className="w-full max-w-xs h-12 bg-green-600 hover:bg-green-700 text-white rounded-2xl font-bold mx-auto block transition-colors"
                 >
-                  أنشئ مزادك الأول
+                  أنشئ صفقتك الأولى
                 </button>
               </div>
             ) : (

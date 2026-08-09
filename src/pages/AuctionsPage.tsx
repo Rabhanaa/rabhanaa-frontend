@@ -281,12 +281,12 @@ export function AuctionsPage() {
                 مرحباً بك في ربحانة 🎉
               </h2>
               <p className="text-green-100 text-sm">
-                يمكنك الآن تصفح المزادات والطلبات
+                يمكنك الآن تصفح الصفقات والطلبات
               </p>
             </div>
             <div className="p-6 space-y-3">
               <p className="text-gray-600 text-sm text-center">
-                للبدء في المزايدة أو إنشاء مزاد، تواصل معنا للاشتراك
+                للبدء في تقديم العروض أو إنشاء صفقة، تواصل معنا للاشتراك
               </p>
               <button
                 onClick={() => setShowWelcome(false)}

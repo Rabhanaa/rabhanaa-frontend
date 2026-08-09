@@ -170,12 +170,12 @@ export function OrdersPage() {
           <div className="text-center py-16 animate-in fade-in slide-in-from-bottom-4 space-y-4">
             <Package size={48} className="text-gray-300 mx-auto mb-3" />
             <p className="text-gray-900 font-bold text-base">لا توجد طلبات بعد</p>
-            <p className="text-gray-500 text-sm">ابدأ بالمزايدة على المزادات للحصول على طلباتك</p>
+            <p className="text-gray-500 text-sm">ابدأ بتقديم العروض على الصفقات للحصول على طلباتك</p>
             <button
               onClick={() => navigate('/auctions')}
               className="w-full max-w-xs h-12 bg-green-600 hover:bg-green-700 text-white rounded-2xl font-bold mx-auto block transition-colors"
             >
-              تصفّح المزادات
+              تصفّح الصفقات
             </button>
           </div>
         ) : (

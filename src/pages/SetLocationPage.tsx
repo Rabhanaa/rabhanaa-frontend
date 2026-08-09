@@ -63,7 +63,7 @@ export function SetLocationPage() {
           }
         </div>
         <h1 className="text-2xl font-extrabold text-white mb-1">تحديد موقعك</h1>
-        <p className="text-green-100 text-sm">نحتاج إلى موقعك لإظهار المزادات القريبة منك</p>
+        <p className="text-green-100 text-sm">نحتاج إلى موقعك لإظهار الصفقات القريبة منك</p>
       </div>
 
       <div className="flex-1 flex flex-col items-center justify-center px-6 pb-10 pt-8 gap-4">

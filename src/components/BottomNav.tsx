@@ -2,8 +2,8 @@ import { useLocation, useNavigate } from 'react-router-dom';
 import { Home, Plus, List, Coins, Package } from 'lucide-react';
 
 const tabs = [
-  { path: '/auctions', label: 'المزادات', icon: Home },
-  { path: '/my-auctions', label: 'مزاداتي', icon: List },
+  { path: '/auctions', label: 'الصفقات', icon: Home },
+  { path: '/my-auctions', label: 'صفقاتي', icon: List },
   { path: '/create', label: '', icon: Plus }, // center floating
   { path: '/my-bids', label: 'عروضي', icon: Coins },
   { path: '/orders', label: 'الطلبات', icon: Package },

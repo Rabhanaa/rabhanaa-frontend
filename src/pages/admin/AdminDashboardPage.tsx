@@ -504,7 +504,7 @@ export function AdminDashboardPage() {
 
         <Card>
           <CardHeader>
-            <CardTitle className="text-base">مزادات منتهية vs طلبات</CardTitle>
+            <CardTitle className="text-base">صفقات منتهية vs طلبات</CardTitle>
           </CardHeader>
           <CardContent>
             {tsLoading ? (
@@ -527,7 +527,7 @@ export function AdminDashboardPage() {
                     <Legend
                       formatter={(value: string) => (
                         <span className="text-xs text-muted-foreground">
-                          {value === 'auctions' ? 'مزادات منتهية' : 'طلبات'}
+                          {value === 'auctions' ? 'صفقات منتهية' : 'طلبات'}
                         </span>
                       )}
                     />

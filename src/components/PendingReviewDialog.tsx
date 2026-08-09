@@ -24,7 +24,7 @@ export function PendingReviewDialog({ open, onOpenChange }: PendingReviewDialogP
             حسابك قيد المراجعة
           </DialogTitle>
           <DialogDescription className="text-gray-500 text-sm">
-            حسابك قيد المراجعة من قِبَل الفريق. يمكنك تصفح المزادات فقط في الوقت الحالي، وستتمكن من النشر والمزايدة بمجرد اعتماد حسابك
+            حسابك قيد المراجعة من قِبَل الفريق. يمكنك تصفح الصفقات فقط في الوقت الحالي، وستتمكن من النشر والمزايدة بمجرد اعتماد حسابك
           </DialogDescription>
         </DialogHeader>
         <button

@@ -165,7 +165,7 @@ export function SellAuctionDetailPage() {
                   <span className="bg-green-100 text-green-700 text-xs font-bold px-2 py-0.5 rounded-full">{bids.length}</span>
                 </h2>
                 {auction.status === 'active' && auction.bid_count === 0 && (
-                  <button onClick={() => setShowCancelDialog(true)} className="text-xs font-bold text-red-600 bg-red-50 px-3 py-1.5 rounded-xl border border-red-200">إلغاء المزاد</button>
+                  <button onClick={() => setShowCancelDialog(true)} className="text-xs font-bold text-red-600 bg-red-50 px-3 py-1.5 rounded-xl border border-red-200">إلغاء الصفقة</button>
                 )}
               </div>
               {bids.length === 0
@@ -196,7 +196,7 @@ export function SellAuctionDetailPage() {
           {!auction.is_owner && (
             <div className="pt-2 border-t border-gray-100">
               {auction.is_expired ? (
-                <div className="text-center py-6 text-gray-400 font-bold">المزاد منتهي</div>
+                <div className="text-center py-6 text-gray-400 font-bold">الصفقة منتهية</div>
               ) : (
                 <div className="space-y-3">
                   <h2 className="font-bold text-gray-900">تقديم عرض</h2>
@@ -235,8 +235,8 @@ export function SellAuctionDetailPage() {
       <AlertDialog open={showCancelDialog} onOpenChange={setShowCancelDialog}>
         <AlertDialogContent className="rounded-3xl">
           <AlertDialogHeader>
-            <AlertDialogTitle className="font-bold">إلغاء المزاد</AlertDialogTitle>
-            <AlertDialogDescription>هل أنت متأكد من إلغاء هذا المزاد؟</AlertDialogDescription>
+            <AlertDialogTitle className="font-bold">إلغاء الصفقة</AlertDialogTitle>
+            <AlertDialogDescription>هل أنت متأكد من إلغاء هذه الصفقة؟</AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogCancel className="rounded-xl">إلغاء</AlertDialogCancel>

@@ -36,7 +36,7 @@ export function SubscriptionPage() {
             <div className="w-8 h-8 rounded-full bg-green-100 flex items-center justify-center">
               <span className="text-green-600 font-bold text-sm">✓</span>
             </div>
-            <span className="text-sm font-bold text-gray-700">تقديم العروض على المزادات</span>
+            <span className="text-sm font-bold text-gray-700">تقديم العروض على الصفقات</span>
           </div>
           <div className="flex items-center gap-3 p-3 bg-green-50 rounded-xl">
             <div className="w-8 h-8 rounded-full bg-green-100 flex items-center justify-center">

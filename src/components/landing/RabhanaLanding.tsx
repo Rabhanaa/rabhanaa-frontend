@@ -37,13 +37,13 @@ export default function RabhanaLanding() {
 
   const categories: Category[] = useMemo(
     () => [
-      { name: "لحوم مستوردة", icon: Beef, count: "10 مزاد نشط" },
-      { name: "كبدة مستوردة", icon: Beef, count: "8 مزاد نشط" },
-      { name: "فراخ مستوردة و مصرية", icon: Drumstick, count: "6 مزاد نشط" },
-      { name: "اسماك مجمدة كرتونه", icon: Fish, count: "7 مزاد نشط" },
-      { name: "ألبان ومشتقات", icon: Milk, count: "5 مزاد نشط" },
-      { name: "جميع المصنعات", icon: Wheat, count: "12 مزاد نشط" },
-      { name: "المزيد من منتجات الكرتونة", icon: Boxes, count: "4 مزاد نشط" },
+      { name: "لحوم مستوردة", icon: Beef, count: "10 صفقة نشطة" },
+      { name: "كبدة مستوردة", icon: Beef, count: "8 صفقة نشطة" },
+      { name: "فراخ مستوردة و مصرية", icon: Drumstick, count: "6 صفقة نشطة" },
+      { name: "اسماك مجمدة كرتونه", icon: Fish, count: "7 صفقة نشطة" },
+      { name: "ألبان ومشتقات", icon: Milk, count: "5 صفقة نشطة" },
+      { name: "جميع المصنعات", icon: Wheat, count: "12 صفقة نشطة" },
+      { name: "المزيد من منتجات الكرتونة", icon: Boxes, count: "4 صفقة نشطة" },
     ],
     [],
   );
@@ -75,9 +75,9 @@ export default function RabhanaLanding() {
                   type="button"
                   className="inline-flex h-11 items-center justify-center rounded-xl border border-secondary-foreground/25 bg-transparent px-4 text-sm font-semibold text-secondary-foreground transition-colors duration-200 hover:bg-secondary-foreground/10"
                   onClick={() => navigate('/auctions')}
-                  aria-label="المزادات"
+                  aria-label="الصفقات"
                 >
-                  المزادات
+                  الصفقات
                 </button>
                 <button
                   type="button"
@@ -122,7 +122,7 @@ export default function RabhanaLanding() {
             <div className="mx-auto max-w-3xl text-center animate-fade-in px-4">
               <p className="inline-flex items-center gap-2 rounded-full border border-secondary/15 bg-secondary/5 px-3 py-1.5 md:px-4 md:py-2 text-xs md:text-sm font-semibold text-secondary">
                 <ShieldCheck className="size-3.5 md:size-4" aria-hidden="true" />
-                منصة مزادات B2B في مصر
+                منصة صفقات B2B في مصر
               </p>
 
               <h1 className="mt-6 text-4xl md:text-5xl lg:text-6xl font-extrabold leading-[1.05] tracking-tight text-secondary">
@@ -139,7 +139,7 @@ export default function RabhanaLanding() {
                     className="inline-flex h-12 items-center justify-center rounded-xl bg-secondary px-8 text-base font-extrabold text-secondary-foreground transition-colors duration-200 hover:bg-primary"
                     onClick={() => navigate('/auctions')}
                   >
-                    المزادات
+                    الصفقات
                   </button>
                 ) : (
                   <>
@@ -155,7 +155,7 @@ export default function RabhanaLanding() {
                       className="inline-flex h-12 items-center justify-center rounded-xl border border-secondary/30 bg-transparent px-8 text-base font-extrabold text-secondary transition-colors duration-200 hover:bg-secondary hover:text-secondary-foreground"
                       onClick={() => navigate('/login')}
                     >
-                      تصفح المزادات
+                      تصفح الصفقات
                     </button>
                   </>
                 )}
@@ -177,7 +177,7 @@ export default function RabhanaLanding() {
             <div className="mt-10 grid gap-4 md:grid-cols-3">
               {[
                 {
-                  title: "أنشئ مزادك",
+                  title: "أنشئ صفقتك",
                   desc: "أضف تفاصيل المنتج والصور والسعر بسهولة.",
                   icon: "1",
                 },
@@ -213,7 +213,7 @@ export default function RabhanaLanding() {
 
         <section id="categories" className="py-20 sm:py-28 border-t border-border/60">
           <div className="container">
-            <SectionTitle title="الفئات" subtitle="اختر فئتك وتابع المزادات النشطة." />
+            <SectionTitle title="الفئات" subtitle="اختر فئتك وتابع الصفقات النشطة." />
 
             <div className="mt-10 grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4">
               {categories.map((c) => {
@@ -224,7 +224,7 @@ export default function RabhanaLanding() {
                     type="button"
                     className="group rounded-2xl border border-border bg-card p-6 text-right transition-colors duration-200 hover:border-secondary/40 hover:bg-secondary/[0.03]"
                     onClick={() => navigate(isAuthenticated ? '/auctions' : '/login')}
-                    aria-label={`عرض مزادات ${c.name}`}
+                    aria-label={`عرض صفقات ${c.name}`}
                   >
                     <div className="grid size-12 place-items-center rounded-xl bg-secondary/5 text-secondary transition-colors duration-200 group-hover:bg-secondary group-hover:text-secondary-foreground">
                       <Icon className="size-6" aria-hidden="true" />
@@ -263,7 +263,7 @@ export default function RabhanaLanding() {
 
                 <div className="mt-8 grid grid-cols-2 gap-4 lg:grid-cols-4">
                   {["2,500+", "20,000+", "98%", "100%"].map((v, i) => {
-                    const label = ["مزاد مُنجز و شراء كل 90 دقيقة", "تاجر موثوق", "معدل رضا", "دعم فني"][i];
+                    const label = ["صفقة مُنجزة و شراء كل 90 دقيقة", "تاجر موثوق", "معدل رضا", "دعم فني"][i];
                     return (
                       <div
                         key={label}
@@ -286,28 +286,28 @@ export default function RabhanaLanding() {
               <div className="rounded-2xl bg-secondary p-8 text-secondary-foreground">
                 <h3 className="text-xl font-extrabold text-secondary-foreground">هل لديك منتجات للبيع؟</h3>
                 <p className="mt-2 text-sm leading-relaxed text-secondary-foreground/80">
-                  أنشئ مزادك بسرعة ووصل لعدد أكبر من المشترين.
+                  أنشئ صفقتك بسرعة ووصل لعدد أكبر من المشترين.
                 </p>
                 <button
                   type="button"
                   className="mt-6 inline-flex h-12 w-full items-center justify-center rounded-xl bg-accent px-6 text-base font-extrabold text-accent-foreground transition-colors duration-200 hover:bg-primary hover:text-primary-foreground"
                   onClick={() => navigate(isAuthenticated ? '/create' : '/login')}
                 >
-                  أنشئ مزاد
+                  أنشئ صفقة
                 </button>
               </div>
 
               <div className="rounded-2xl border border-border bg-card p-8 transition-colors duration-200 hover:border-secondary/40">
                 <h3 className="text-xl font-extrabold text-secondary">تبحث عن منتجات غذائية ومجمدات مستورة؟</h3>
                 <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
-                  تابع المزادات حسب الفئة والمنطقة، واختر أفضل العروض.
+                  تابع الصفقات حسب الفئة والمنطقة، واختر أفضل العروض.
                 </p>
                 <button
                   type="button"
                   className="mt-6 inline-flex h-12 w-full items-center justify-center rounded-xl bg-primary px-6 text-base font-extrabold text-primary-foreground transition-colors duration-200 hover:bg-secondary hover:text-secondary-foreground"
                   onClick={() => navigate(isAuthenticated ? '/auctions' : '/login')}
                 >
-                  تصفح المزادات
+                  تصفح الصفقات
                 </button>
               </div>
             </div>

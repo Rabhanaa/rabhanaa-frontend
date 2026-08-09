@@ -66,7 +66,7 @@ export function MyBidsPage() {
         <h1 className="text-2xl font-bold text-gray-900 flex items-center gap-2">
           <Coins size={22} className="text-green-600" /> عرض اسعاري
         </h1>
-        <p className="text-gray-500 text-sm">هذه كل المزادات التي قدمت عرض سعر عليها</p>
+        <p className="text-gray-500 text-sm">هذه كل الصفقات التي قدمت عرض سعر عليها</p>
       </div>
 
       <div className="px-4 pt-4 space-y-4">
@@ -91,12 +91,12 @@ export function MyBidsPage() {
               <div className="text-center py-16 space-y-4">
                 <Coins size={48} className="text-gray-300 mx-auto mb-3" />
                 <p className="text-gray-900 font-bold text-base">لا توجد عروض بعد</p>
-                <p className="text-gray-500 text-sm">تصفّح المزادات وابدأ بالمزايدة</p>
+                <p className="text-gray-500 text-sm">تصفّح الصفقات وابدأ بتقديم العروض</p>
                 <button
                   onClick={() => navigate('/auctions')}
                   className="w-full max-w-xs h-12 bg-green-600 hover:bg-green-700 text-white rounded-2xl font-bold mx-auto block transition-colors"
                 >
-                  تصفّح المزادات
+                  تصفّح الصفقات
                 </button>
               </div>
             ) : (
@@ -142,12 +142,12 @@ export function MyBidsPage() {
               <div className="text-center py-16 space-y-4">
                 <Coins size={48} className="text-gray-300 mx-auto mb-3" />
                 <p className="text-gray-900 font-bold text-base">لا توجد عروض بعد</p>
-                <p className="text-gray-500 text-sm">تصفّح المزادات وابدأ بالمزايدة</p>
+                <p className="text-gray-500 text-sm">تصفّح الصفقات وابدأ بتقديم العروض</p>
                 <button
                   onClick={() => navigate('/auctions')}
                   className="w-full max-w-xs h-12 bg-green-600 hover:bg-green-700 text-white rounded-2xl font-bold mx-auto block transition-colors"
                 >
-                  تصفّح المزادات
+                  تصفّح الصفقات
                 </button>
               </div>
             ) : (
