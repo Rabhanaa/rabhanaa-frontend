@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Loader2, Clock, Package, ShoppingCart, CheckCircle2, XCircle } from 'lucide-react';
 import { api } from '@/lib/api';
+import { formatMoney } from '@/lib/utils';
 import { useApiError } from '@/hooks/useApiError';
 
 interface Order {
@@ -9,7 +10,7 @@ interface Order {
   source_type: 'sell_auction' | 'buy_request';
   seller_name: string; seller_phone: string; seller_region: string;
   buyer_name: string; buyer_phone: string; buyer_region: string;
-  final_price: number; unit_price: number; quantity: number; unit: string;
+  final_price: number; unit_price: number; total_price: string; quantity: number; unit: string;
   status: string; confirmation_deadline: string | null; masked_message: string;
   is_seller_confirmed: boolean; is_buyer_confirmed: boolean;
   i_am_seller: boolean; i_am_buyer: boolean; created_at: string;
@@ -107,9 +108,11 @@ export function OrdersPage() {
             <p className="text-xs text-gray-500">{counterparty.region}</p>
           </div>
           <div className="text-left">
-            <p className="text-xs text-gray-500 font-bold">السعر النهائي</p>
-            <p className="text-xl font-extrabold text-green-600">{order.final_price}</p>
-            <p className="text-xs text-gray-500">{order.quantity} {order.unit}</p>
+            <p className="text-xs text-gray-500 font-bold">إجمالي الصفقة</p>
+            <p className="text-xl font-extrabold text-green-600">
+              {formatMoney(order.total_price)} <span className="text-xs font-bold text-gray-400">ج.م</span>
+            </p>
+            <p className="text-xs text-gray-500">{order.quantity} {order.unit} × {formatMoney(order.unit_price)}</p>
           </div>
         </div>
 
