@@ -1,13 +1,11 @@
 import { useNavigate } from 'react-router-dom';
 import { ScreenHeader } from '@/components/ScreenHeader';
 import { MessageCircle } from 'lucide-react';
-import { useConfigStore } from '@/stores/config';
-import { normalizeEgPhone } from '@/lib/utils';
+import { useWhatsAppUrl } from '@/lib/support';
 
 export function SubscriptionPage() {
   const navigate = useNavigate();
-  const phone = useConfigStore((s) => s.config?.support_phone) || '01107286690';
-  const whatsappUrl = `https://wa.me/${normalizeEgPhone(phone)}`;
+  const whatsappUrl = useWhatsAppUrl();
 
   return (
     <div className="min-h-screen bg-gray-50 px-4 pt-10 pb-24" dir="rtl">

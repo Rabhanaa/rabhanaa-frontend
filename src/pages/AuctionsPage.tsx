@@ -1,11 +1,10 @@
 import { useState, useEffect } from "react";
 import { useSearchParams } from "react-router-dom";
 import { useAuthStore } from "@/stores/auth";
-import { useConfigStore } from "@/stores/config";
 import { AuctionCard } from "@/components/AuctionCard";
 import { Loader2, AlertCircle } from "lucide-react";
 import { api } from "@/lib/api";
-import { normalizeEgPhone } from "@/lib/utils";
+import { useWhatsAppUrl } from "@/lib/support";
 
 interface Interest {
   id: number;
@@ -39,8 +38,7 @@ interface BuyRequest {
 export function AuctionsPage() {
   const user = useAuthStore((state) => state.user);
   const isInitialized = useAuthStore((state) => state.isInitialized);
-  const supportPhone = useConfigStore((s) => s.config?.support_phone) || "01107286690";
-  const whatsappUrl = `https://wa.me/${normalizeEgPhone(supportPhone)}`;
+  const whatsappUrl = useWhatsAppUrl();
   const [activeTab, setActiveTab] = useState<"sell" | "buy">("sell");
 
   const [, setInterests] = useState<Interest[]>([]);

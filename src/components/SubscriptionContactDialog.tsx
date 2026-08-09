@@ -6,8 +6,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog';
-import { useConfigStore } from '@/stores/config';
-import { normalizeEgPhone } from '@/lib/utils';
+import { useWhatsAppUrl } from '@/lib/support';
 
 interface SubscriptionContactDialogProps {
   open: boolean;
@@ -15,8 +14,7 @@ interface SubscriptionContactDialogProps {
 }
 
 export function SubscriptionContactDialog({ open, onOpenChange }: SubscriptionContactDialogProps) {
-  const phone = useConfigStore((s) => s.config?.support_phone) || '01107286690';
-  const whatsappUrl = `https://wa.me/${normalizeEgPhone(phone)}`;
+  const whatsappUrl = useWhatsAppUrl();
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
