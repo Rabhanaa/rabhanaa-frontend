@@ -7,6 +7,7 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog';
 import { useWhatsAppUrl } from '@/lib/support';
+import { trackPixel } from '@/lib/pixel';
 
 interface SubscriptionContactDialogProps {
   open: boolean;
@@ -31,7 +32,10 @@ export function SubscriptionContactDialog({ open, onOpenChange }: SubscriptionCo
           </DialogDescription>
         </DialogHeader>
         <button
-          onClick={() => window.open(whatsappUrl, '_blank')}
+          onClick={() => {
+            trackPixel('Lead', { source: 'subscription_dialog' });
+            window.open(whatsappUrl, '_blank');
+          }}
           className="w-full h-12 bg-green-600 hover:bg-green-700 text-white rounded-2xl font-bold flex items-center justify-center gap-2 transition-colors mt-2"
         >
           <MessageCircle className="h-5 w-5" />

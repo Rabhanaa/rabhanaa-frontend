@@ -2,6 +2,7 @@ import { useNavigate } from 'react-router-dom';
 import { ScreenHeader } from '@/components/ScreenHeader';
 import { MessageCircle } from 'lucide-react';
 import { useWhatsAppUrl } from '@/lib/support';
+import { trackPixel } from '@/lib/pixel';
 
 export function SubscriptionPage() {
   const navigate = useNavigate();
@@ -47,7 +48,10 @@ export function SubscriptionPage() {
         </div>
 
         <button
-          onClick={() => window.open(whatsappUrl, '_blank')}
+          onClick={() => {
+            trackPixel('Lead', { source: 'subscription_page' });
+            window.open(whatsappUrl, '_blank');
+          }}
           className="w-full h-14 bg-green-600 hover:bg-green-700 text-white rounded-2xl font-bold text-base flex items-center justify-center gap-2 transition-colors"
         >
           <MessageCircle size={20} />

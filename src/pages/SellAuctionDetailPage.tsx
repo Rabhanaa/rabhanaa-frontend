@@ -11,6 +11,7 @@ import { useAuthStore } from '@/stores/auth';
 import { isSubscriptionError, isPendingReviewError } from '@/lib/errors';
 import { SubscriptionContactDialog } from '@/components/SubscriptionContactDialog';
 import { PendingReviewDialog } from '@/components/PendingReviewDialog';
+import { trackPixel } from '@/lib/pixel';
 
 interface SellAuction {
   public_id: string; region_name: string; interest_name: string; title: string;
@@ -46,7 +47,7 @@ export function SellAuctionDetailPage() {
 
   useEffect(() => {
     api.get<SellAuction>(`/sell-auctions/${publicId}`)
-      .then(setAuction).catch((err) => handleError(err)).finally(() => setLoading(false));
+      .then((d) => { setAuction(d); trackPixel('ViewContent', { content_type: 'sell_auction' }); }).catch((err) => handleError(err)).finally(() => setLoading(false));
   }, [publicId]);
 
   useEffect(() => {

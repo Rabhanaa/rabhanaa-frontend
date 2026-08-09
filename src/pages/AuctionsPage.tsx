@@ -5,6 +5,7 @@ import { AuctionCard } from "@/components/AuctionCard";
 import { Loader2, AlertCircle } from "lucide-react";
 import { api } from "@/lib/api";
 import { useWhatsAppUrl } from "@/lib/support";
+import { trackPixel } from "@/lib/pixel";
 
 interface Interest {
   id: number;
@@ -295,7 +296,10 @@ export function AuctionsPage() {
                 متابعة
               </button>
               <button
-                onClick={() => window.open(whatsappUrl, "_blank")}
+                onClick={() => {
+                  trackPixel("Lead", { source: "auctions_banner" });
+                  window.open(whatsappUrl, "_blank");
+                }}
                 className="w-full h-12 border-2 border-green-600 text-green-600 rounded-2xl font-bold hover:bg-green-50 transition-colors"
               >
                 تواصل معنا

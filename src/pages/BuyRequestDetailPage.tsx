@@ -11,6 +11,7 @@ import { useAuthStore } from '@/stores/auth';
 import { isSubscriptionError, isPendingReviewError } from '@/lib/errors';
 import { SubscriptionContactDialog } from '@/components/SubscriptionContactDialog';
 import { PendingReviewDialog } from '@/components/PendingReviewDialog';
+import { trackPixel } from '@/lib/pixel';
 
 interface BuyRequest {
   public_id: string; region_name: string; interest_name: string; title: string;
@@ -49,7 +50,7 @@ export function BuyRequestDetailPage() {
 
   useEffect(() => {
     api.get<BuyRequest>(`/buy-requests/${publicId}`)
-      .then(setRequest).catch((e) => handleError(e)).finally(() => setLoading(false));
+      .then((d) => { setRequest(d); trackPixel('ViewContent', { content_type: 'buy_request' }); }).catch((e) => handleError(e)).finally(() => setLoading(false));
   }, [publicId]);
 
   useEffect(() => {

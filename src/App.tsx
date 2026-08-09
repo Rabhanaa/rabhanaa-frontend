@@ -37,6 +37,7 @@ import { AdminIssuesPage } from './pages/admin/AdminIssuesPage';
 import { AdminProtectedRoute } from './components/AdminProtectedRoute';
 import { AdminLayout } from './components/AdminLayout';
 import { NotificationListener } from './components/NotificationListener';
+import { PixelTracker } from './components/PixelTracker';
 
 function App() {
   useEffect(() => {
@@ -68,6 +69,7 @@ function App() {
       <PWAUpdatePrompt />
       <BrowserRouter>
         <NotificationListener />
+        <PixelTracker />
         <Routes>
           <Route path="/" element={<Index />} />
           <Route path="/login" element={<LoginPage />} />

@@ -20,6 +20,7 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { API_CONFIG } from '@/lib/api';
+import { trackPixel } from '@/lib/pixel';
 
 interface Region {
   id: number;
@@ -105,6 +106,7 @@ export function RegisterPage() {
       }
       const data = await response.json();
       setAuth(data.access_token, data.user);
+      trackPixel('CompleteRegistration');
       navigate('/select-interests');
     } catch (err) {
       handleError(err);
