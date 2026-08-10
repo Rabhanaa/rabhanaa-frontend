@@ -2,6 +2,7 @@ import { useEffect } from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { useAuthStore } from './stores/auth';
 import { api } from './lib/api';
+import { ensurePushToken } from './lib/notifications';
 import type { User } from './stores/auth';
 import { ProtectedRoute } from './components/ProtectedRoute';
 import { MainLayout } from './components/MainLayout';
@@ -48,6 +49,11 @@ function App() {
     // status is always up to date without requiring a re-login.
     if (localStorage.getItem('token')) {
       api.get<User>('/auth/me').then((fresh) => store.setUser(fresh)).catch(() => {});
+
+      // Re-send the FCM token on every load. It used to be sent only from the
+      // login screen, but the JWT lasts a year — so once a token rotated or
+      // expired nothing ever replaced it and push went quiet permanently.
+      ensurePushToken().catch((err) => console.error('[push] token sync failed:', err));
     }
   }, [])
 
