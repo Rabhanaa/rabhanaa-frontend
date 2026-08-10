@@ -35,6 +35,10 @@ interface Job {
   is_active: boolean;
 }
 
+// Roles the client asked to be offered the retail-supply question. A plain
+// trader or company is not asked.
+const SUPPLY_SIDE_ROLES = ['importer', 'wholesaler', 'distributor', 'processor', 'supplier'];
+
 const SIGNUP_SOURCES: { value: string; label: string }[] = [
   { value: 'facebook',  label: 'فيسبوك' },
   { value: 'google',    label: 'جوجل' },
@@ -57,8 +61,11 @@ export function RegisterPage() {
   const [formData, setFormData] = useState({
     name: '', email: '', phone: '', password: '', region_id: '', job_id: '', signup_source: '',
   });
+  const [suppliesToRetail, setSuppliesToRetail] = useState(false);
   const [regions, setRegions] = useState<Region[]>([]);
   const [jobs, setJobs] = useState<Job[]>([]);
+  const selectedJob = jobs.find((j) => j.id.toString() === formData.job_id);
+  const isSupplySideRole = !!selectedJob && SUPPLY_SIDE_ROLES.includes(selectedJob.key);
   const [loading, setLoading] = useState(false);
   const [fetching, setFetching] = useState(true);
   const [phoneTouched, setPhoneTouched] = useState(false);
@@ -98,6 +105,7 @@ export function RegisterPage() {
           ...formData,
           region_id: parseInt(formData.region_id),
           job_id: parseInt(formData.job_id),
+          supplies_to_retail: suppliesToRetail,
         }),
       });
       if (!response.ok) {
@@ -255,6 +263,18 @@ export function RegisterPage() {
               </SelectContent>
             </Select>
           </div>
+
+          {isSupplySideRole && (
+            <label className="flex cursor-pointer items-center gap-3 rounded-2xl border border-gray-200 bg-gray-50 p-4">
+              <input
+                type="checkbox"
+                checked={suppliesToRetail}
+                onChange={(e) => setSuppliesToRetail(e.target.checked)}
+                className="size-5 shrink-0 accent-green-600"
+              />
+              <span className="text-sm font-bold text-gray-700">أقوم بالتوريد للتجزئة</span>
+            </label>
+          )}
 
           <div>
             <label className={labelClass}>كيف عرفت عن ربحانة؟</label>
