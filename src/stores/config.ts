@@ -11,6 +11,7 @@ export interface AppConfig {
   selection_window_hours: number;
   support_phone: string;
   require_documents: boolean;
+  region_filter_enabled: boolean;
 }
 
 interface ConfigStore {
