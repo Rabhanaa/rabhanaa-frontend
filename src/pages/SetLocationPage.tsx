@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { MapPin, CheckCircle2, Loader2 } from 'lucide-react';
 import { API_CONFIG } from '@/lib/api';
 import { useApiError } from '@/hooks/useApiError';
+import { useConfigStore, type AppConfig } from '@/stores/config';
 
 export function SetLocationPage() {
   const navigate = useNavigate();
@@ -10,12 +11,39 @@ export function SetLocationPage() {
   const [detecting, setDetecting] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [detected, setDetected] = useState(false);
+  const [denied, setDenied] = useState(false);
+  const config = useConfigStore((s) => s.config);
+  const setConfig = useConfigStore((s) => s.setConfig);
+
+  // Where onboarding goes after this screen depends on whether document upload
+  // is switched on, so resolve the flag before navigating rather than hardcoding
+  // the next route.
+  const goToNextStep = async () => {
+    let requireDocuments = config?.require_documents;
+    if (requireDocuments === undefined) {
+      try {
+        const res = await fetch(`${API_CONFIG.FULL_URL}/config`, {
+          headers: { Authorization: `Bearer ${localStorage.getItem('token')}` },
+        });
+        if (res.ok) {
+          const fresh: AppConfig = await res.json();
+          setConfig(fresh);
+          requireDocuments = fresh.require_documents;
+        }
+      } catch {
+        // fall through — treated as not required below
+      }
+    }
+    navigate(requireDocuments ? '/documents' : '/auctions');
+  };
 
   const handleDetectLocation = () => {
     setDetecting(true);
+    setDenied(false);
     if (!navigator.geolocation) {
       handleError(new Error('المتصفح لا يدعم تحديد الموقع'));
       setDetecting(false);
+      setDenied(true);
       return;
     }
     navigator.geolocation.getCurrentPosition(
@@ -26,6 +54,9 @@ export function SetLocationPage() {
       },
       (err) => {
         setDetecting(false);
+        // Every failure path keeps the skip button on screen — denying the
+        // permission used to strand the user here with no way forward.
+        setDenied(true);
         if (err.code === err.PERMISSION_DENIED) handleError(new Error('تم رفض إذن الموقع'));
         else if (err.code === err.POSITION_UNAVAILABLE) handleError(new Error('معلومات الموقع غير متاحة'));
         else if (err.code === err.TIMEOUT) handleError(new Error('انتهت مهلة طلب الموقع'));
@@ -44,7 +75,7 @@ export function SetLocationPage() {
         body: JSON.stringify({ latitude, longitude }),
       });
       if (!res.ok) { const d = await res.json().catch(() => ({})); throw new Error(d.message || 'Failed'); }
-      navigate('/documents');
+      await goToNextStep();
     } catch (err) {
       handleError(err);
       setDetected(false);
@@ -68,16 +99,32 @@ export function SetLocationPage() {
 
       <div className="flex-1 flex flex-col items-center justify-center px-6 pb-10 pt-8 gap-4">
         {!detected && !submitting && (
-          <button
-            onClick={handleDetectLocation}
-            disabled={detecting}
-            className="w-full max-w-sm h-14 bg-green-600 hover:bg-green-700 active:scale-95 text-white rounded-2xl font-bold text-base shadow-lg transition-all disabled:opacity-60 flex items-center justify-center gap-2"
-          >
-            {detecting
-              ? <><Loader2 className="h-5 w-5 animate-spin" />جاري تحديد الموقع...</>
-              : <><MapPin size={18} />تحديد موقعي</>
-            }
-          </button>
+          <>
+            <button
+              onClick={handleDetectLocation}
+              disabled={detecting}
+              className="w-full max-w-sm h-14 bg-green-600 hover:bg-green-700 active:scale-95 text-white rounded-2xl font-bold text-base shadow-lg transition-all disabled:opacity-60 flex items-center justify-center gap-2"
+            >
+              {detecting
+                ? <><Loader2 className="h-5 w-5 animate-spin" />جاري تحديد الموقع...</>
+                : <><MapPin size={18} />{denied ? 'إعادة المحاولة' : 'تحديد موقعي'}</>
+              }
+            </button>
+
+            {denied && (
+              <p className="max-w-sm text-center text-xs text-gray-500">
+                يمكنك المتابعة بدون تحديد الموقع، وتفعيله لاحقاً من إعدادات المتصفح.
+              </p>
+            )}
+
+            <button
+              onClick={goToNextStep}
+              disabled={detecting}
+              className="w-full max-w-sm h-12 rounded-2xl font-bold text-sm text-gray-500 hover:text-gray-700 transition-colors disabled:opacity-60"
+            >
+              تخطي الآن
+            </button>
+          </>
         )}
 
         {submitting && (

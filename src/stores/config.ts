@@ -10,6 +10,7 @@ export interface AppConfig {
   min_interests_at_registration: number;
   selection_window_hours: number;
   support_phone: string;
+  require_documents: boolean;
 }
 
 interface ConfigStore {
