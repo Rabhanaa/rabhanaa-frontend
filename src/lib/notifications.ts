@@ -2,7 +2,7 @@ import { getToken, deleteToken } from 'firebase/messaging'
 import { messaging, VAPID_KEY, firebaseConfigured } from './firebase'
 import { api } from './api'
 
-function pushSupported(): boolean {
+export function pushSupported(): boolean {
   return (
     firebaseConfigured &&
     !!messaging &&
