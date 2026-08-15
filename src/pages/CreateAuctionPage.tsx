@@ -20,7 +20,7 @@ import {
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
 import { Loader2, X, Camera } from 'lucide-react';
-import { API_CONFIG, api } from '@/lib/api';
+import { API_CONFIG, api, getImageUrl } from '@/lib/api';
 import { ScreenHeader } from '@/components/ScreenHeader';
 import { useApiError } from '@/hooks/useApiError';
 import { SubscriptionContactDialog } from '@/components/SubscriptionContactDialog';
@@ -28,6 +28,14 @@ import { PendingReviewDialog } from '@/components/PendingReviewDialog';
 import { isSubscriptionError, isPendingReviewError } from '@/lib/errors';
 import { cn } from '@/lib/utils';
 import { toast } from 'sonner';
+
+interface ShippingCompany {
+  public_id: string;
+  name: string;
+  phone: string;
+  logo_url?: string;
+  notes?: string;
+}
 
 interface Region {
   id: number;
@@ -69,6 +77,7 @@ export function CreateAuctionPage() {
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
   const [regions, setRegions] = useState<Region[]>([]);
+  const [carriers, setCarriers] = useState<ShippingCompany[]>([]);
   const [interests, setInterests] = useState<Interest[]>([]);
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
@@ -105,6 +114,19 @@ export function CreateAuctionPage() {
     };
     fetchData();
   }, []);
+
+  useEffect(() => {
+    if (!formData.region_id) {
+      setCarriers([]);
+      return;
+    }
+    // Which carriers cover this governorate. Failure is silent: the list is
+    // informational and must never block publishing.
+    api
+      .get<{ companies: ShippingCompany[] }>(`/shipping-companies?region_id=${formData.region_id}`)
+      .then((d) => setCarriers(d.companies ?? []))
+      .catch(() => setCarriers([]));
+  }, [formData.region_id]);
 
   const handleImageSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -347,6 +369,47 @@ export function CreateAuctionPage() {
             </SelectContent>
           </Select>
         </div>
+
+        {/* Carriers covering the chosen governorate. Informational only — the
+            merchant calls them directly. Renders nothing when there are none,
+            since an empty box on every post would be worse than silence. */}
+        {carriers.length > 0 && (
+          <div className="rounded-2xl border border-gray-200 bg-gray-50 p-4">
+            <p className="mb-3 text-xs font-bold text-gray-700">
+              شركات النقل المتاحة في هذه المنطقة
+            </p>
+            <div className="space-y-2">
+              {carriers.map((c) => (
+                <div key={c.public_id} className="flex items-center gap-3">
+                  {c.logo_url ? (
+                    <img
+                      src={getImageUrl(c.logo_url) ?? undefined}
+                      alt=""
+                      className="size-9 shrink-0 rounded-lg object-cover"
+                    />
+                  ) : (
+                    <span className="grid size-9 shrink-0 place-items-center rounded-lg bg-white">
+                      🚚
+                    </span>
+                  )}
+                  <div className="min-w-0 flex-1">
+                    <p className="truncate text-sm font-bold text-gray-900">{c.name}</p>
+                    {c.notes && (
+                      <p className="truncate text-[11px] text-gray-500">{c.notes}</p>
+                    )}
+                  </div>
+                  <a
+                    href={`tel:${c.phone}`}
+                    dir="ltr"
+                    className="shrink-0 rounded-xl bg-white px-3 py-1.5 text-xs font-bold text-green-700 border border-gray-200"
+                  >
+                    {c.phone}
+                  </a>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
 
         <div className="grid grid-cols-2 gap-4">
           <div>

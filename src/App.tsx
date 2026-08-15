@@ -36,6 +36,7 @@ import { UserDetailPage } from './pages/admin/UserDetailPage';
 import { AdminNotFoundPage } from './pages/admin/AdminNotFoundPage';
 import { AdminIssuesPage } from './pages/admin/AdminIssuesPage';
 import { PostModerationPage } from './pages/admin/PostModerationPage';
+import { ShippingCompaniesPage } from './pages/admin/ShippingCompaniesPage';
 import { AdminProtectedRoute } from './components/AdminProtectedRoute';
 import { AdminLayout } from './components/AdminLayout';
 import { NotificationListener } from './components/NotificationListener';
@@ -106,6 +107,7 @@ function App() {
             <Route path="users/:publicId" element={<UserDetailPage />} />
             <Route path="issues" element={<AdminIssuesPage />} />
             <Route path="posts" element={<PostModerationPage />} />
+            <Route path="shipping" element={<ShippingCompaniesPage />} />
             <Route path="*" element={<AdminNotFoundPage />} />
           </Route>
           <Route path="*" element={<Navigate to="/" replace />} />

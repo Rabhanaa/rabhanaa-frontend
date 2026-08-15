@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { NavLink } from 'react-router-dom';
-import { Search, ClipboardCheck, LayoutDashboard, LogOut, Headset, FileCheck } from 'lucide-react';
+import { Search, ClipboardCheck, LayoutDashboard, LogOut, Headset, FileCheck, Truck } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import { useAuthStore } from '@/stores/auth';
@@ -80,7 +80,16 @@ export function AdminSidebar() {
           )}
         </NavLink>
 
-        {/* 4. Issues */}
+        {/* 4. Shipping companies */}
+        <NavLink
+          to="/admin/shipping"
+          className={({ isActive }) => cn(baseClass, isActive && activeClass)}
+        >
+          <Truck className="h-4 w-4 shrink-0" />
+          <span>شركات الشحن</span>
+        </NavLink>
+
+        {/* 5. Issues */}
         <NavLink
           to="/admin/issues"
           className={({ isActive }) => cn(baseClass, isActive && activeClass)}
