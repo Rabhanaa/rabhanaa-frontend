@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useAuthStore } from '@/stores/auth';
+import { useAuthStore, isRetailer } from '@/stores/auth';
 import { useConfigStore } from '@/stores/config';
 import {
   Select,
@@ -51,7 +51,10 @@ export function CreateAuctionPage() {
   const config = useConfigStore((state) => state.config);
   const { handleError } = useApiError();
 
-  const [type, setType] = useState<'sell' | 'buy'>('sell');
+  // The API rejects a sell post from a retailer, so don't offer the choice —
+  // a form that can submit something guaranteed to fail is just a trap.
+  const retailer = isRetailer(user);
+  const [type, setType] = useState<'sell' | 'buy'>(retailer ? 'buy' : 'sell');
   const [formData, setFormData] = useState({
     title: '',
     description: '',
@@ -206,6 +209,7 @@ export function CreateAuctionPage() {
       <ScreenHeader title="إضافة جديد" onBack={() => navigate(-1)} />
 
       {/* 7.2 — Mode toggle */}
+      {!retailer && (
       <div className="flex p-1 bg-white rounded-2xl border border-gray-200 mb-6">
         <button
           onClick={() => setType('buy')}
@@ -224,6 +228,7 @@ export function CreateAuctionPage() {
           عرض بيع
         </button>
       </div>
+      )}
 
       {/* 7.3 — White card form */}
       <div className="bg-white p-6 rounded-3xl shadow-sm border border-gray-100 space-y-5">

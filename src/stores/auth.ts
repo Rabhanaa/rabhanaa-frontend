@@ -9,6 +9,7 @@ export interface User {
   is_admin: boolean;
   region_name: string;
   job_name: string;
+  job_key: string;
   subscribed: boolean;
   in_trial: boolean;
 }
@@ -23,6 +24,14 @@ interface AuthStore {
   setUser: (user: User) => void;
   logout: (options?: { silent?: boolean }) => void;
   initialize: () => void;
+}
+
+// Matches the jobs row added in backend migration 040. Branch on this rather
+// than job_name (Arabic display text) or job_id (a magic number).
+export const RETAILER_ROLE = 'retailer';
+
+export function isRetailer(user: User | null): boolean {
+  return user?.job_key === RETAILER_ROLE;
 }
 
 let isLoggingOut = false;

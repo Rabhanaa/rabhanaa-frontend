@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { useSearchParams } from "react-router-dom";
-import { useAuthStore } from "@/stores/auth";
+import { useAuthStore, isRetailer } from "@/stores/auth";
 import { AuctionCard } from "@/components/AuctionCard";
 import { Loader2, AlertCircle } from "lucide-react";
 import { api } from "@/lib/api";
@@ -40,6 +40,9 @@ export function AuctionsPage() {
   const user = useAuthStore((state) => state.user);
   const isInitialized = useAuthStore((state) => state.isInitialized);
   const whatsappUrl = useWhatsAppUrl();
+  // A retailer buys from wholesalers and cannot fulfil a buy request, so the
+  // tab is hidden and the feed stays on sell posts. The API enforces the same.
+  const retailer = isRetailer(user);
   const [activeTab, setActiveTab] = useState<"sell" | "buy">("sell");
 
   const [, setInterests] = useState<Interest[]>([]);
@@ -166,6 +169,7 @@ export function AuctionsPage() {
         )}
 
         {/* 6.3 — Sell/buy tab toggle */}
+        {!retailer && (
         <div className="flex p-1 bg-white rounded-2xl border border-gray-200">
           <button
             onClick={() => setActiveTab("sell")}
@@ -188,6 +192,7 @@ export function AuctionsPage() {
            مطلوب للشراء
           </button>
         </div>
+        )}
 
         {/* Sell Tab */}
         {activeTab === "sell" && (
@@ -231,7 +236,7 @@ export function AuctionsPage() {
         )}
 
         {/* Buy Tab */}
-        {activeTab === "buy" && (
+        {activeTab === "buy" && !retailer && (
           <div className="space-y-3">
             {buyLoading ? (
               <div className="flex justify-center py-8">

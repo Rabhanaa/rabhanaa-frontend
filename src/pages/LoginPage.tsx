@@ -1,6 +1,6 @@
 import { useState, useEffect, type FormEvent } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useAuthStore } from '@/stores/auth';
+import { useAuthStore, type User } from '@/stores/auth';
 import { api } from '@/lib/api';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
@@ -18,18 +18,9 @@ const benefits = [
 
 interface LoginResponse {
   access_token: string;
-  user: {
-    public_id: string;
-    name: string;
-    email: string;
-    phone: string;
-    status: string;
-    is_admin: boolean;
-    region_name: string;
-    job_name: string;
-    subscribed: boolean;
-    in_trial: boolean;
-  };
+  // Reuses the store's User rather than restating its fields, which is how this
+  // drifted out of date when job_key was added.
+  user: User;
 }
 
 export function LoginPage() {
