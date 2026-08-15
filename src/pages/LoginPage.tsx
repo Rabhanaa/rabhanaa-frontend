@@ -129,6 +129,14 @@ export function LoginPage() {
           >
             {loading ? 'جاري التحميل...' : 'تسجيل الدخول'}
           </Button>
+
+          <button
+            type="button"
+            onClick={() => navigate('/forgot-password')}
+            className="w-full text-center text-sm font-bold text-green-600 hover:underline"
+          >
+            نسيت كلمة المرور؟
+          </button>
         </form>
 
         <div className="mt-8 text-center text-sm">
