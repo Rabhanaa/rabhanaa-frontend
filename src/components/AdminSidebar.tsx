@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { NavLink } from 'react-router-dom';
-import { Search, ClipboardCheck, LayoutDashboard, LogOut, Headset } from 'lucide-react';
+import { Search, ClipboardCheck, LayoutDashboard, LogOut, Headset, FileCheck } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import { useAuthStore } from '@/stores/auth';
@@ -13,6 +13,7 @@ interface PendingResponse {
 export function AdminSidebar() {
   const name = useAuthStore((s) => s.user?.name);
   const [hasPending, setHasPending] = useState(false);
+  const [hasPendingPosts, setHasPendingPosts] = useState(false);
 
   useEffect(() => {
     api
@@ -20,6 +21,13 @@ export function AdminSidebar() {
       .then((res) => {
         setHasPending(res.users.length > 0);
       })
+      .catch(() => {
+        // Silently ignore — sidebar badge is non-critical
+      });
+
+    api
+      .get<{ total: number }>('/admin/posts/pending?page_size=1')
+      .then((res) => setHasPendingPosts(res.total > 0))
       .catch(() => {
         // Silently ignore — sidebar badge is non-critical
       });
@@ -60,7 +68,19 @@ export function AdminSidebar() {
           )}
         </NavLink>
 
-        {/* 3. Issues */}
+        {/* 3. Post moderation */}
+        <NavLink
+          to="/admin/posts"
+          className={({ isActive }) => cn(baseClass, isActive && activeClass)}
+        >
+          <FileCheck className="h-4 w-4 shrink-0" />
+          <span className="flex-1">مراجعة المنشورات</span>
+          {hasPendingPosts && (
+            <span className="inline-block h-2 w-2 rounded-full bg-red-500 shrink-0" />
+          )}
+        </NavLink>
+
+        {/* 4. Issues */}
         <NavLink
           to="/admin/issues"
           className={({ isActive }) => cn(baseClass, isActive && activeClass)}

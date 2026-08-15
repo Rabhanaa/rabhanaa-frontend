@@ -12,6 +12,7 @@ export interface AppConfig {
   support_phone: string;
   require_documents: boolean;
   region_filter_enabled: boolean;
+  post_approval_enabled: boolean;
 }
 
 interface ConfigStore {

@@ -29,6 +29,9 @@ interface BuyRequestCardProps {
 }
 
 const statusColor: Record<string, string> = {
+  suspended: "text-orange-700 bg-orange-50 border-orange-200",
+  rejected: "text-red-600 bg-red-50 border-red-200",
+  pending_approval: "text-yellow-700 bg-yellow-50 border-yellow-200",
   active: "text-green-600 bg-green-50 border-green-200",
   pending_selection: "text-yellow-700 bg-yellow-50 border-yellow-200",
   completed: "text-blue-600 bg-blue-50 border-blue-200",
@@ -37,6 +40,9 @@ const statusColor: Record<string, string> = {
 };
 
 const statusText: Record<string, string> = {
+  suspended: "موقوف",
+  rejected: "مرفوض",
+  pending_approval: "بانتظار الموافقة",
   active: "نشط",
   pending_selection: "بانتظار الاختيار",
   completed: "مكتمل",

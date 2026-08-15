@@ -27,6 +27,7 @@ import { SubscriptionContactDialog } from '@/components/SubscriptionContactDialo
 import { PendingReviewDialog } from '@/components/PendingReviewDialog';
 import { isSubscriptionError, isPendingReviewError } from '@/lib/errors';
 import { cn } from '@/lib/utils';
+import { toast } from 'sonner';
 
 interface Region {
   id: number;
@@ -157,6 +158,13 @@ export function CreateAuctionPage() {
 
       const path = type === 'sell' ? '/sell-auctions' : '/buy-requests';
       await api.post(path, payload);
+      // With moderation on the post is not live yet — say so, or the merchant
+      // goes looking for it in the feed and thinks publishing failed.
+      if (config?.post_approval_enabled) {
+        toast.info('تم إرسال منشورك للمراجعة', {
+          description: 'سيظهر للجميع بعد موافقة الإدارة.',
+        });
+      }
       navigate('/my-auctions');
     } catch (err) {
       if (isSubscriptionError(err)) {
