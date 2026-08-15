@@ -2,14 +2,19 @@ import { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { User, Bell, Headset } from 'lucide-react';
 import { useNotificationStore } from '@/stores/notifications';
+import { useAuthStore } from '@/stores/auth';
 
 export function TopNavbar() {
   const navigate = useNavigate();
   const { unreadCount, fetchNotifications } = useNotificationStore();
+  const token = useAuthStore((s) => s.token);
 
   useEffect(() => {
+    // Notifications are a member feature; fetching them as a visitor is a
+    // guaranteed 401.
+    if (!token) return;
     fetchNotifications();
-  }, [fetchNotifications]);
+  }, [fetchNotifications, token]);
 
   return (
     <header className="sticky top-0 z-40 w-full border-b bg-white/70 backdrop-blur-md supports-[backdrop-filter]:bg-white/60">
@@ -34,28 +39,40 @@ export function TopNavbar() {
             <Headset size={20} />
           </button>
 
-          {/* Notification Button */}
-          <button
-            onClick={() => navigate('/notifications')}
-            className="relative flex h-10 w-10 items-center justify-center rounded-full bg-gray-50 border border-gray-100 text-gray-600 hover:bg-green-50 hover:text-green-600 hover:border-green-100 transition-all active:scale-95 shadow-sm"
-            aria-label="الإشعارات"
-          >
-            <Bell size={20} />
-            {unreadCount > 0 && (
-              <span className="absolute -top-0.5 -right-0.5 flex h-4 min-w-4 items-center justify-center rounded-full bg-red-500 px-1 text-[10px] font-bold text-white">
-                {unreadCount > 99 ? '99+' : unreadCount}
-              </span>
-            )}
-          </button>
+          {token ? (
+            <>
+              {/* Notification Button */}
+              <button
+                onClick={() => navigate('/notifications')}
+                className="relative flex h-10 w-10 items-center justify-center rounded-full bg-gray-50 border border-gray-100 text-gray-600 hover:bg-green-50 hover:text-green-600 hover:border-green-100 transition-all active:scale-95 shadow-sm"
+                aria-label="الإشعارات"
+              >
+                <Bell size={20} />
+                {unreadCount > 0 && (
+                  <span className="absolute -top-0.5 -right-0.5 flex h-4 min-w-4 items-center justify-center rounded-full bg-red-500 px-1 text-[10px] font-bold text-white">
+                    {unreadCount > 99 ? '99+' : unreadCount}
+                  </span>
+                )}
+              </button>
 
-          {/* Profile Button */}
-          <button
-            onClick={() => navigate('/profile')}
-            className="flex h-10 w-10 items-center justify-center rounded-full bg-gray-50 border border-gray-100 text-gray-600 hover:bg-green-50 hover:text-green-600 hover:border-green-100 transition-all active:scale-95 shadow-sm"
-            aria-label="الحساب الشخصي"
-          >
-            <User size={20} />
-          </button>
+              {/* Profile Button */}
+              <button
+                onClick={() => navigate('/profile')}
+                className="flex h-10 w-10 items-center justify-center rounded-full bg-gray-50 border border-gray-100 text-gray-600 hover:bg-green-50 hover:text-green-600 hover:border-green-100 transition-all active:scale-95 shadow-sm"
+                aria-label="الحساب الشخصي"
+              >
+                <User size={20} />
+              </button>
+            </>
+          ) : (
+            /* Visitors get the way in, not links that would bounce them. */
+            <button
+              onClick={() => navigate('/register')}
+              className="h-10 rounded-full bg-green-600 px-4 text-sm font-bold text-white shadow-sm transition-all hover:bg-green-700 active:scale-95"
+            >
+              سجل الآن
+            </button>
+          )}
         </div>
       </div>
     </header>

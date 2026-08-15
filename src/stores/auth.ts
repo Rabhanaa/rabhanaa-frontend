@@ -87,6 +87,11 @@ export const useAuthStore = create<AuthStore>((set, get) => ({
   logout: (options = {}) => {
     if (isLoggingOut) return;
 
+    // With public browsing there is no session to end for a visitor, and any
+    // 401 from a protected endpoint would otherwise bounce them to /login
+    // mid-browse.
+    if (!get().token && !localStorage.getItem("token")) return;
+
     isLoggingOut = true;
 
     const wasAdmin = get().user?.is_admin === true;

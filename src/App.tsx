@@ -85,9 +85,9 @@ function App() {
           <Route path="/select-interests" element={<ProtectedRoute><SelectInterestsPage /></ProtectedRoute>} />
           <Route path="/set-location" element={<ProtectedRoute><SetLocationPage /></ProtectedRoute>} />
           <Route path="/documents" element={<ProtectedRoute><UploadDocumentsPage /></ProtectedRoute>} />
-          <Route path="/auctions" element={<ProtectedRoute><MainLayout><AuctionsPage /></MainLayout></ProtectedRoute>} />
-          <Route path="/auctions/sell/:publicId" element={<ProtectedRoute><MainLayout><SellAuctionDetailPage /></MainLayout></ProtectedRoute>} />
-          <Route path="/auctions/buy/:publicId" element={<ProtectedRoute><MainLayout><BuyRequestDetailPage /></MainLayout></ProtectedRoute>} />
+          <Route path="/auctions" element={<MainLayout><AuctionsPage /></MainLayout>} />
+          <Route path="/auctions/sell/:publicId" element={<MainLayout><SellAuctionDetailPage /></MainLayout>} />
+          <Route path="/auctions/buy/:publicId" element={<MainLayout><BuyRequestDetailPage /></MainLayout>} />
           <Route path="/create" element={<ProtectedRoute><MainLayout><CreateAuctionPage /></MainLayout></ProtectedRoute>} />
           <Route path="/my-auctions" element={<ProtectedRoute><MainLayout><MyAuctionsPage /></MainLayout></ProtectedRoute>} />
           <Route path="/my-bids" element={<ProtectedRoute><MainLayout><MyBidsPage /></MainLayout></ProtectedRoute>} />

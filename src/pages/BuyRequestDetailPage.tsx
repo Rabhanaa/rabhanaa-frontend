@@ -12,6 +12,7 @@ import { isSubscriptionError, isPendingReviewError } from '@/lib/errors';
 import { SubscriptionContactDialog } from '@/components/SubscriptionContactDialog';
 import { PendingReviewDialog } from '@/components/PendingReviewDialog';
 import { trackPixel } from '@/lib/pixel';
+import { RegisterPromptDialog } from '@/components/RegisterPromptDialog';
 
 interface BuyRequest {
   public_id: string; region_name: string; interest_name: string; title: string;
@@ -32,6 +33,8 @@ export function BuyRequestDetailPage() {
   const navigate = useNavigate();
   const { handleError } = useApiError();
   const user = useAuthStore((state) => state.user);
+  const token = useAuthStore((state) => state.token);
+  const [showRegisterPrompt, setShowRegisterPrompt] = useState(false);
 
   const [request, setRequest] = useState<BuyRequest | null>(null);
   const [offers, setOffers] = useState<Offer[]>([]);
@@ -226,7 +229,7 @@ export function BuyRequestDetailPage() {
                   step="0.01" min="0"
                 />
                 <button
-                  onClick={() => setShowOfferConfirmDialog(true)}
+                  onClick={() => (token ? setShowOfferConfirmDialog(true) : setShowRegisterPrompt(true))}
                   disabled={!offerPrice || submittingOffer}
                   className="h-14 px-5 bg-orange-500 text-white rounded-xl font-bold shadow-lg hover:bg-orange-600 disabled:opacity-50 flex items-center gap-2"
                 >
@@ -301,6 +304,12 @@ export function BuyRequestDetailPage() {
       )}
       <SubscriptionContactDialog open={subscriptionDialogOpen} onOpenChange={setSubscriptionDialogOpen} />
       <PendingReviewDialog open={pendingReviewDialogOpen} onOpenChange={setPendingReviewDialogOpen} />
+
+      <RegisterPromptDialog
+        open={showRegisterPrompt}
+        onOpenChange={setShowRegisterPrompt}
+        action="تقديم عرض توريد"
+      />
     </div>
   );
 }

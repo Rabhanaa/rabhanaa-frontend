@@ -12,6 +12,7 @@ import { isSubscriptionError, isPendingReviewError } from '@/lib/errors';
 import { SubscriptionContactDialog } from '@/components/SubscriptionContactDialog';
 import { PendingReviewDialog } from '@/components/PendingReviewDialog';
 import { trackPixel } from '@/lib/pixel';
+import { RegisterPromptDialog } from '@/components/RegisterPromptDialog';
 
 interface SellAuction {
   public_id: string; region_name: string; interest_name: string; title: string;
@@ -30,6 +31,8 @@ export function SellAuctionDetailPage() {
   const navigate = useNavigate();
   const { handleError } = useApiError();
   const user = useAuthStore((state) => state.user);
+  const token = useAuthStore((state) => state.token);
+  const [showRegisterPrompt, setShowRegisterPrompt] = useState(false);
   const [auction, setAuction] = useState<SellAuction | null>(null);
   const [bids, setBids] = useState<Bid[]>([]);
   const [loading, setLoading] = useState(true);
@@ -205,7 +208,7 @@ export function SellAuctionDetailPage() {
                     <input type="number" value={bidAmount} onChange={(e) => setBidAmount(e.target.value)}
                       className="flex-1 h-14 border border-gray-200 rounded-xl px-4 font-bold text-lg outline-none focus:border-green-500 bg-white"
                       placeholder="المبلغ المقترح" />
-                    <button onClick={() => setShowBidConfirmDialog(true)} disabled={!bidAmount || submittingBid}
+                    <button onClick={() => (token ? setShowBidConfirmDialog(true) : setShowRegisterPrompt(true))} disabled={!bidAmount || submittingBid}
                       className="h-14 px-5 bg-green-600 text-white rounded-xl font-bold shadow-lg hover:bg-green-700 disabled:opacity-50 flex items-center gap-2">
                       <Send size={18} />
                     </button>
@@ -282,6 +285,12 @@ export function SellAuctionDetailPage() {
       </AlertDialog>
       <SubscriptionContactDialog open={subscriptionDialogOpen} onOpenChange={setSubscriptionDialogOpen} />
       <PendingReviewDialog open={pendingReviewDialogOpen} onOpenChange={setPendingReviewDialogOpen} />
+
+      <RegisterPromptDialog
+        open={showRegisterPrompt}
+        onOpenChange={setShowRegisterPrompt}
+        action="تقديم عرض على هذه الصفقة"
+      />
     </div>
   );
 }

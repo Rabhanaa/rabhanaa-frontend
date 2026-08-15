@@ -1,5 +1,8 @@
+import { useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { Home, Plus, List, Coins, Package } from 'lucide-react';
+import { useAuthStore } from '@/stores/auth';
+import { RegisterPromptDialog } from './RegisterPromptDialog';
 
 const tabs = [
   { path: '/auctions', label: 'الصفقات', icon: Home },
@@ -12,6 +15,12 @@ const tabs = [
 export function BottomNav() {
   const location = useLocation();
   const navigate = useNavigate();
+  const token = useAuthStore((s) => s.token);
+  const [promptOpen, setPromptOpen] = useState(false);
+
+  // A visitor keeps the feed tab; the rest would only redirect them, so the
+  // centre button becomes the way in instead.
+  const visibleTabs = token ? tabs : tabs.filter((t) => t.path === '/auctions' || t.path === '/create');
 
   const isMainRoute = [
     '/auctions', '/create', '/my-auctions', '/my-bids', '/orders', '/profile',
@@ -22,7 +31,7 @@ export function BottomNav() {
   return (
     <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 shadow-[0_-5px_15px_rgba(0,0,0,0.03)] z-50 pb-safe">
       <div className="flex justify-around items-center h-16 max-w-md mx-auto px-2">
-        {tabs.map((tab) => {
+        {visibleTabs.map((tab) => {
           const isActive = location.pathname === tab.path || location.pathname.startsWith(tab.path + '/');
           const Icon = tab.icon;
 
@@ -31,7 +40,7 @@ export function BottomNav() {
             return (
               <div key={tab.path} className="relative -top-5">
                 <button
-                  onClick={() => navigate(tab.path)}
+                  onClick={() => (token ? navigate(tab.path) : setPromptOpen(true))}
                   className="w-14 h-14 bg-green-600 rounded-full flex items-center justify-center text-white shadow-xl shadow-green-600/40 active:scale-95 transition-transform border-4 border-gray-50"
                 >
                   <Plus size={28} />
@@ -55,6 +64,12 @@ export function BottomNav() {
           );
         })}
       </div>
+
+      <RegisterPromptDialog
+        open={promptOpen}
+        onOpenChange={setPromptOpen}
+        action="نشر صفقة"
+      />
     </div>
   );
 }
