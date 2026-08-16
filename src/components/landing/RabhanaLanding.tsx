@@ -153,7 +153,7 @@ export default function RabhanaLanding() {
                     <button
                       type="button"
                       className="inline-flex h-12 items-center justify-center rounded-xl border border-secondary/30 bg-transparent px-8 text-base font-extrabold text-secondary transition-colors duration-200 hover:bg-secondary hover:text-secondary-foreground"
-                      onClick={() => navigate('/login')}
+                      onClick={() => navigate('/auctions')}
                     >
                       تصفح الصفقات
                     </button>
@@ -223,7 +223,7 @@ export default function RabhanaLanding() {
                     key={c.name}
                     type="button"
                     className="group rounded-2xl border border-border bg-card p-6 text-right transition-colors duration-200 hover:border-secondary/40 hover:bg-secondary/[0.03]"
-                    onClick={() => navigate(isAuthenticated ? '/auctions' : '/login')}
+                    onClick={() => navigate('/auctions')}
                     aria-label={`عرض صفقات ${c.name}`}
                   >
                     <div className="grid size-12 place-items-center rounded-xl bg-secondary/5 text-secondary transition-colors duration-200 group-hover:bg-secondary group-hover:text-secondary-foreground">
@@ -291,7 +291,7 @@ export default function RabhanaLanding() {
                 <button
                   type="button"
                   className="mt-6 inline-flex h-12 w-full items-center justify-center rounded-xl bg-accent px-6 text-base font-extrabold text-accent-foreground transition-colors duration-200 hover:bg-primary hover:text-primary-foreground"
-                  onClick={() => navigate(isAuthenticated ? '/create' : '/login')}
+                  onClick={() => navigate(isAuthenticated ? '/create' : '/register')}
                 >
                   أنشئ صفقة
                 </button>
@@ -305,7 +305,7 @@ export default function RabhanaLanding() {
                 <button
                   type="button"
                   className="mt-6 inline-flex h-12 w-full items-center justify-center rounded-xl bg-primary px-6 text-base font-extrabold text-primary-foreground transition-colors duration-200 hover:bg-secondary hover:text-secondary-foreground"
-                  onClick={() => navigate(isAuthenticated ? '/auctions' : '/login')}
+                  onClick={() => navigate('/auctions')}
                 >
                   تصفح الصفقات
                 </button>

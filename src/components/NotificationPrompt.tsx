@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { Bell, X } from 'lucide-react';
 import { toast } from 'sonner';
 import { pushSupported, registerPushToken } from '@/lib/notifications';
+import { useAuthStore } from '@/stores/auth';
 
 const DISMISSED_KEY = 'notif-prompt-dismissed';
 
@@ -12,13 +13,17 @@ const DISMISSED_KEY = 'notif-prompt-dismissed';
 export function NotificationPrompt() {
   const [visible, setVisible] = useState(false);
   const [busy, setBusy] = useState(false);
+  const token = useAuthStore((s) => s.token);
 
   useEffect(() => {
+    // Registering a device token needs an account, so offering this to a
+    // visitor would burn their permission prompt on a request that 401s.
+    if (!token) return;
     if (!pushSupported()) return;
     if (Notification.permission !== 'default') return; // granted or denied — nothing to ask
     if (localStorage.getItem(DISMISSED_KEY)) return;
     setVisible(true);
-  }, []);
+  }, [token]);
 
   const enable = async () => {
     setBusy(true);
