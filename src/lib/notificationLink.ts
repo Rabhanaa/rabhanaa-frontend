@@ -90,6 +90,19 @@ export function resolveNotificationLink(
       if (requestId) return `/auctions/buy/${requestId}`
       return null
 
+    // Shipping quotes (#14). Same trap as the moderation events below: the
+    // notification service overwrites data.type with the event name, so these
+    // have to be listed here or the tap does nothing at all.
+    case 'shipping_quote_received':
+    case 'shipping_quote_accepted':
+    case 'shipping_quote_rejected':
+      if (orderId) return `/orders/${orderId}`
+      if (auctionId) return `/auctions/sell/${auctionId}`
+      if (requestId) return `/auctions/buy/${requestId}`
+      // A carrier has no access to the merchant's deal screens, so its own
+      // quote list is where a verdict makes sense.
+      return '/carrier/quotes'
+
     // Moderation verdicts (#18). The event name is what gets stored — the
     // notification service overwrites data.type with it — so these have to be
     // listed here or the owner taps the verdict and nothing happens. An owner

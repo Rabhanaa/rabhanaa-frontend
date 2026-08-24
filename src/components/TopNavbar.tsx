@@ -2,12 +2,13 @@ import { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { User, Bell, Headset } from 'lucide-react';
 import { useNotificationStore } from '@/stores/notifications';
-import { useAuthStore } from '@/stores/auth';
+import { useAuthStore, isCarrier } from '@/stores/auth';
 
 export function TopNavbar() {
   const navigate = useNavigate();
   const { unreadCount, fetchNotifications } = useNotificationStore();
   const token = useAuthStore((s) => s.token);
+  const carrier = isCarrier(useAuthStore((s) => s.user));
 
   useEffect(() => {
     // Notifications are a member feature; fetching them as a visitor is a
@@ -57,7 +58,7 @@ export function TopNavbar() {
 
               {/* Profile Button */}
               <button
-                onClick={() => navigate('/profile')}
+                onClick={() => navigate(carrier ? '/carrier/profile' : '/profile')}
                 className="flex h-10 w-10 items-center justify-center rounded-full bg-gray-50 border border-gray-100 text-gray-600 hover:bg-green-50 hover:text-green-600 hover:border-green-100 transition-all active:scale-95 shadow-sm"
                 aria-label="الحساب الشخصي"
               >

@@ -1,6 +1,6 @@
 import { useState, useEffect, type FormEvent } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useAuthStore, type User } from '@/stores/auth';
+import { useAuthStore, isCarrier, type User } from '@/stores/auth';
 import { api } from '@/lib/api';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
@@ -45,7 +45,15 @@ export function LoginPage() {
       const data = await api.post<LoginResponse>('/auth/login', { email, password });
       setAuth(data.access_token, data.user);
       registerPushToken().catch((err) => console.error('[push] Token registration failed:', err))
-      navigate(data.user.is_admin ? '/admin/users' : '/auctions');
+      // A carrier has no use for the merchant feed — it cannot bid on anything
+      // there — so send each role to the screen it actually works from.
+      navigate(
+        data.user.is_admin
+          ? '/admin/users'
+          : isCarrier(data.user)
+            ? '/carrier/jobs'
+            : '/auctions',
+      );
     } catch (err) {
       handleError(err);
     } finally {
