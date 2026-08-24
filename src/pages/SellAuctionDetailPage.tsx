@@ -13,6 +13,7 @@ import { SubscriptionContactDialog } from '@/components/SubscriptionContactDialo
 import { PendingReviewDialog } from '@/components/PendingReviewDialog';
 import { trackPixel } from '@/lib/pixel';
 import { RegisterPromptDialog } from '@/components/RegisterPromptDialog';
+import { postStatusText } from '@/lib/postStatus';
 
 interface SellAuction {
   public_id: string; region_name: string; interest_name: string; title: string;
@@ -121,7 +122,6 @@ export function SellAuctionDetailPage() {
   if (loading) return <div className="min-h-screen flex items-center justify-center"><Loader2 className="h-8 w-8 animate-spin text-green-600" /></div>;
   if (!auction) return null;
 
-  const statusText: Record<string, string> = { active: 'نشط', pending_selection: 'بانتظار الاختيار', completed: 'مكتمل', cancelled: 'ملغي', expired: 'منتهي' };
   const isExpired = timeLeft === 'منتهي';
 
   return (
@@ -137,7 +137,7 @@ export function SellAuctionDetailPage() {
           <ChevronRight size={24} className="text-gray-800" />
         </button>
         <span className={`absolute top-10 start-4 text-xs font-bold px-3 py-1.5 rounded-full backdrop-blur-md ${auction.status === 'active' ? 'bg-green-600 text-white' : 'bg-white/80 text-gray-800'}`}>
-          {statusText[auction.status] || auction.status}
+          {postStatusText(auction.status)}
         </span>
       </div>
 

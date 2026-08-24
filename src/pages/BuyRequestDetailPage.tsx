@@ -13,6 +13,7 @@ import { SubscriptionContactDialog } from '@/components/SubscriptionContactDialo
 import { PendingReviewDialog } from '@/components/PendingReviewDialog';
 import { trackPixel } from '@/lib/pixel';
 import { RegisterPromptDialog } from '@/components/RegisterPromptDialog';
+import { postStatusText } from '@/lib/postStatus';
 
 interface BuyRequest {
   public_id: string; region_name: string; interest_name: string; title: string;
@@ -123,7 +124,6 @@ export function BuyRequestDetailPage() {
   if (loading) return <div className="min-h-screen flex items-center justify-center"><Loader2 className="h-8 w-8 animate-spin text-orange-500" /></div>;
   if (!request) return <div className="min-h-screen flex items-center justify-center p-4 text-red-500 font-bold">Request not found</div>;
 
-  const statusText: Record<string, string> = { active: 'نشط', pending_selection: 'بانتظار الاختيار', completed: 'مكتمل', cancelled: 'ملغي', expired: 'منتهي' };
   const isExpired = timeLeft === 'منتهي';
   const canAcceptOffers = request.is_owner && (request.status === 'active' || request.status === 'pending_selection' || request.status === 'partially_fulfilled') && offers.length > 0;
   const canCancelRequest = request.is_owner && request.status === 'active' && offers.length === 0;
@@ -142,7 +142,7 @@ export function BuyRequestDetailPage() {
           <ChevronRight size={24} className="text-gray-800" />
         </button>
         <span className={`absolute top-10 start-4 text-xs font-bold px-3 py-1.5 rounded-full backdrop-blur-md ${request.status === 'active' ? 'bg-orange-500 text-white' : 'bg-white/80 text-gray-800'}`}>
-          {statusText[request.status] || request.status}
+          {postStatusText(request.status)}
         </span>
       </div>
 

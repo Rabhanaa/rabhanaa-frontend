@@ -8,7 +8,7 @@ export function useApiError() {
       return;
     }
     if (err instanceof ApiError) {
-      const base = getArabicMessage(err.code);
+      const base = getArabicMessage(err.code, err.message);
       const isStatusError = err.code === 'USER_SUSPENDED' || err.code === 'USER_BANNED';
       const reason = isStatusError && err.data && typeof err.data === 'object' && 'reason' in err.data
         ? (err.data as { reason?: string }).reason

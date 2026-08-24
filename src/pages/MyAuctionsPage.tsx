@@ -32,27 +32,6 @@ interface BuyRequest {
   moderation_reason?: string;
 }
 
-const statusText: Record<string, string> = {
-  suspended: "موقوف",
-  rejected: "مرفوض",
-  pending_approval: "بانتظار الموافقة",
-  active: "نشط",
-  pending_selection: "بانتظار الاختيار",
-  completed: "مكتمل",
-  cancelled: "ملغي",
-  expired: "منتهي",
-};
-const statusColor: Record<string, string> = {
-  suspended: "text-orange-700 bg-orange-50 border-orange-200",
-  rejected: "text-red-600 bg-red-50 border-red-200",
-  pending_approval: "text-yellow-700 bg-yellow-50 border-yellow-200",
-  active: "text-green-600 bg-green-50 border-green-200",
-  pending_selection: "text-yellow-700 bg-yellow-50 border-yellow-200",
-  completed: "text-blue-600 bg-blue-50 border-blue-200",
-  cancelled: "text-red-600 bg-red-50 border-red-200",
-  expired: "text-gray-500 bg-gray-100 border-gray-200",
-};
-
 export function MyAuctionsPage() {
   const navigate = useNavigate();
   const { handleError } = useApiError();
@@ -171,24 +150,7 @@ export function MyAuctionsPage() {
               </div>
             ) : (
               sellAuctions.map((a) => (
-                <div key={a.public_id} className="space-y-1.5">
-                  <AuctionCard {...a} type="sell" />
-                  {/* Sell posts had no status chip; sellers now need to see that
-                      a post is awaiting review, and why one was refused. */}
-                  <div className="flex flex-col items-end gap-1 px-1">
-                    <span
-                      className={`text-[10px] font-bold px-2.5 py-1 rounded-full border ${
-                        statusColor[a.status] ||
-                        "text-gray-500 bg-gray-100 border-gray-200"
-                      }`}
-                    >
-                      {statusText[a.status] || a.status}
-                    </span>
-                    {a.moderation_reason && (
-                      <p className="text-[10px] text-gray-500 text-end">{a.moderation_reason}</p>
-                    )}
-                  </div>
-                </div>
+                <AuctionCard key={a.public_id} {...a} type="sell" />
               ))
             )}
             {!sellLoading &&
@@ -230,22 +192,7 @@ export function MyAuctionsPage() {
               </div>
             ) : (
               buyRequests.map((r) => (
-                <div key={r.public_id} className="space-y-1.5">
-                  <AuctionCard {...r} type="buy" />
-                  <div className="flex flex-col items-end gap-1 px-1">
-                    <span
-                      className={`text-[10px] font-bold px-2.5 py-1 rounded-full border ${
-                        statusColor[r.status] ||
-                        "text-gray-500 bg-gray-100 border-gray-200"
-                      }`}
-                    >
-                      {statusText[r.status] || r.status}
-                    </span>
-                    {r.moderation_reason && (
-                      <p className="text-[10px] text-gray-500 text-end">{r.moderation_reason}</p>
-                    )}
-                  </div>
-                </div>
+                <AuctionCard key={r.public_id} {...r} type="buy" />
               ))
             )}
             {!buyLoading &&

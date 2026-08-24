@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
 import { Loader2 } from 'lucide-react';
 import { api } from '@/lib/api';
+import { ApiError, getArabicMessage } from '@/lib/errors';
 import { useApiError } from '@/hooks/useApiError';
 
 // Mirrors ValidatePassword in the Go service — 8-16 chars with an upper, a
@@ -33,6 +34,9 @@ export function ForgotPasswordPage() {
   const [confirmPassword, setConfirmPassword] = useState('');
   const [loading, setLoading] = useState(false);
   const [cooldown, setCooldown] = useState(0);
+  // A toast fades after a few seconds; a wrong code needs an answer that stays
+  // on screen next to the field being corrected.
+  const [codeError, setCodeError] = useState('');
 
   useEffect(() => {
     if (cooldown <= 0) return;
@@ -65,10 +69,16 @@ export function ForgotPasswordPage() {
   async function verifyCode(e: FormEvent) {
     e.preventDefault();
     setLoading(true);
+    setCodeError('');
     try {
       await api.post('/auth/verify-reset-code', { email, code });
       setStep('password');
     } catch (err) {
+      setCodeError(
+        err instanceof ApiError && err.code === 'INVALID_RESET_CODE'
+          ? 'الرمز غير صحيح أو منتهي الصلاحية'
+          : getArabicMessage(err instanceof ApiError ? err.code : '', err instanceof Error ? err.message : '')
+      );
       handleError(err);
     } finally {
       setLoading(false);
@@ -148,12 +158,17 @@ export function ForgotPasswordPage() {
                 autoComplete="one-time-code"
                 maxLength={6}
                 value={code}
-                onChange={(e) => setCode(e.target.value.replace(/\D/g, ''))}
-                className={`${inputClass} text-center tracking-[0.5em] text-2xl`}
+                onChange={(e) => { setCode(e.target.value.replace(/\D/g, '')); setCodeError(''); }}
+                className={`${inputClass} text-center tracking-[0.5em] text-2xl ${
+                  codeError ? 'border-red-400 focus:border-red-500 focus:ring-red-100' : ''
+                }`}
                 placeholder="000000"
                 dir="ltr"
                 required
               />
+              {codeError && (
+                <p className="mt-2 text-xs font-bold text-red-600">{codeError}</p>
+              )}
             </div>
             <button type="submit" disabled={loading || code.length !== 6} className={buttonClass}>
               {loading ? <Loader2 className="h-5 w-5 animate-spin" /> : 'تأكيد الرمز'}

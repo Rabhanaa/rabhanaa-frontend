@@ -134,10 +134,18 @@ export function isSubscriptionError(err: unknown): boolean {
   );
 }
 
-export function getArabicMessage(code: string): string {
+const ARABIC_SCRIPT = /[؀-ۿ]/;
+
+export function getArabicMessage(code: string, serverMessage?: string): string {
   const key = code?.trim();
   if (key && ERROR_MESSAGES[key]) return ERROR_MESSAGES[key];
   if (key?.startsWith('missing file:')) return 'الملف المطلوب مفقود';
   if (key?.includes('Field validation for')) return 'الرجاء التحقق من صحة البيانات المدخلة';
+  // The API answers every error with its own Arabic message, so prefer that
+  // over a generic string: a code missing from the map above still tells the
+  // user what actually went wrong instead of "حدث خطأ غير متوقع". Only trust it
+  // when it is really Arabic — Gin's binding errors come back in English.
+  const fromServer = serverMessage?.trim();
+  if (fromServer && ARABIC_SCRIPT.test(fromServer)) return fromServer;
   return 'حدث خطأ غير متوقع';
 }

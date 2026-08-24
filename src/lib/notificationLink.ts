@@ -90,6 +90,18 @@ export function resolveNotificationLink(
       if (requestId) return `/auctions/buy/${requestId}`
       return null
 
+    // Moderation verdicts (#18). The event name is what gets stored — the
+    // notification service overwrites data.type with it — so these have to be
+    // listed here or the owner taps the verdict and nothing happens. An owner
+    // may open their own post whatever its status, so the detail page is a
+    // valid destination even when the post is not public.
+    case 'post_approved':
+    case 'post_rejected':
+    case 'post_suspended':
+      if (auctionId) return `/auctions/sell/${auctionId}`
+      if (requestId) return `/auctions/buy/${requestId}`
+      return '/my-auctions'
+
     case 'account_approved':
     case 'account_rejected':
     case 'account_suspended':

@@ -2,7 +2,13 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Clock, Package, Archive } from "lucide-react";
 import { getImageUrl } from "@/lib/api";
+import { POST_STATUS_TEXT } from "@/lib/postStatus";
 
+// status and moderation_reason are only sent by the my-posts endpoint — the
+// public feed lists active posts only and omits both. Undefined therefore means
+// "no chip", which is deliberate: the card used to hardcode the chip to نشط for
+// every sell post and منتهي for every buy request, so a rejected post read as
+// active and every buy request in the feed read as expired.
 interface SellAuctionCardProps {
   type: "sell";
   public_id: string;
@@ -14,6 +20,8 @@ interface SellAuctionCardProps {
   bid_count: number;
   region_name: string;
   end_time: string;
+  status?: string;
+  moderation_reason?: string | null;
 }
 
 interface BuyRequestCardProps {
@@ -26,6 +34,8 @@ interface BuyRequestCardProps {
   offer_count: number;
   region_name: string;
   end_time: string;
+  status?: string;
+  moderation_reason?: string | null;
 }
 
 const statusColor: Record<string, string> = {
@@ -39,16 +49,7 @@ const statusColor: Record<string, string> = {
   expired: "text-gray-500 bg-gray-100 border-gray-200",
 };
 
-const statusText: Record<string, string> = {
-  suspended: "موقوف",
-  rejected: "مرفوض",
-  pending_approval: "بانتظار الموافقة",
-  active: "نشط",
-  pending_selection: "بانتظار الاختيار",
-  completed: "مكتمل",
-  cancelled: "ملغي",
-  expired: "منتهي",
-};
+const statusText = POST_STATUS_TEXT;
 
 type AuctionCardProps = SellAuctionCardProps | BuyRequestCardProps;
 
@@ -100,8 +101,10 @@ export function AuctionCard(props: AuctionCardProps) {
       onClick={handleClick}
       className="cursor-pointer bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden hover:shadow-md transition-shadow"
     >
-      {/* 2.1 — Horizontal: image left 35%, content right 65% */}
-      <div className="flex h-28">
+      {/* 2.1 — Horizontal: image left 35%, content right 65%.
+          min-h rather than a fixed height: a refused post carries an extra
+          line of reason text, and a fixed 7rem clipped the bottom row off. */}
+      <div className="flex min-h-28">
         {/* Image */}
         <div className="relative w-[35%] shrink-0 bg-gray-100">
           {props.image_url ? (
@@ -140,12 +143,34 @@ export function AuctionCard(props: AuctionCardProps) {
         {/* Content */}
         <div className="flex-1 p-2.5 flex flex-col justify-between overflow-hidden">
           <div>
-            <h3 className="font-bold text-gray-900 text-xs line-clamp-1 mb-1">
-              {props.title}
-            </h3>
+            {/* Title start, status end — the status of a post is the first
+                thing its owner looks for, so it sits on the top line rather
+                than competing with the countdown at the bottom. */}
+            <div className="flex items-start justify-between gap-2 mb-1">
+              <h3 className="font-bold text-gray-900 text-xs line-clamp-1">
+                {props.title}
+              </h3>
+              {props.status && (
+                <span
+                  className={`shrink-0 text-[10px] font-bold px-2.5 py-1 rounded-full border ${
+                    statusColor[props.status] ||
+                    "text-gray-500 bg-gray-100 border-gray-200"
+                  }`}
+                >
+                  {statusText[props.status] || props.status}
+                </span>
+              )}
+            </div>
             <span className="text-[12px] text-gray-500 font-medium">
               {props.region_name}
             </span>
+            {/* Why a post was refused or taken down, in the card itself — the
+                owner should not have to open it to find out. */}
+            {props.moderation_reason && (
+              <p className="mt-0.5 text-[10px] font-medium text-red-600 line-clamp-1">
+                {props.moderation_reason}
+              </p>
+            )}
           </div>
 
           {/* 2.4 — Price */}
@@ -169,15 +194,6 @@ export function AuctionCard(props: AuctionCardProps) {
             </span>
 
             <div className="flex justify-end px-1 gap-2">
-              <span
-                className={`text-[10px] font-bold px-2.5 py-1 rounded-full border ${
-                  statusColor[props.type === "sell" ? "active" : "expired"] ||
-                  "text-gray-500 bg-gray-100 border-gray-200"
-                }`}
-              >
-                {statusText[props.type === "sell" ? "active" : "expired"] ||
-                  (props.type === "sell" ? "active" : "expired")}
-              </span>
               <span
                 className={`flex items-center gap-0.5 text-[9px] font-bold px-1.5 py-0.5 rounded-md border ${
                   isExpired
