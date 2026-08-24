@@ -93,14 +93,20 @@ export function resolveNotificationLink(
     // Shipping quotes (#14). Same trap as the moderation events below: the
     // notification service overwrites data.type with the event name, so these
     // have to be listed here or the tap does nothing at all.
+    //
+    // Only the merchant is told a quote arrived, and only they can open the
+    // deal, so this one keeps the job link.
     case 'shipping_quote_received':
-    case 'shipping_quote_accepted':
-    case 'shipping_quote_rejected':
       if (orderId) return `/orders/${orderId}`
       if (auctionId) return `/auctions/sell/${auctionId}`
       if (requestId) return `/auctions/buy/${requestId}`
-      // A carrier has no access to the merchant's deal screens, so its own
-      // quote list is where a verdict makes sense.
+      return null
+
+    // A verdict only ever goes to a carrier, and a carrier is not a party to the
+    // order — following the job link would hand it NOT_ORDER_PARTICIPANT and a
+    // blank screen. Its own quote list is where the answer lives.
+    case 'shipping_quote_accepted':
+    case 'shipping_quote_rejected':
       return '/carrier/quotes'
 
     // Moderation verdicts (#18). The event name is what gets stored — the

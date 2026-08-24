@@ -21,7 +21,7 @@ export function TopNavbar() {
     <header className="sticky top-0 z-40 w-full border-b bg-white/70 backdrop-blur-md supports-[backdrop-filter]:bg-white/60">
       <div className="container flex h-16 items-center justify-between px-4">
         {/* Brand/Logo */}
-        <div className="flex items-center gap-2 cursor-pointer" onClick={() => navigate('/auctions')}>
+        <div className="flex items-center gap-2 cursor-pointer" onClick={() => navigate(carrier ? '/carrier/jobs' : '/auctions')}>
           <img src="/brand/icon-white-square.png" alt="" className="size-9 rounded-xl shadow-lg" />
           <div>
             <div className="text-lg font-extrabold leading-none text-gray-900">ربحانة</div>

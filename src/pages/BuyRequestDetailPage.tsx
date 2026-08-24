@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import { Navigate, useParams, useNavigate } from 'react-router-dom';
 import {
   AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent,
   AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle,
@@ -7,7 +7,7 @@ import {
 import { Clock, Package, MapPin, Tag, CheckCircle2, Loader2, ChevronRight, Send, Gavel } from 'lucide-react';
 import { api, getImageUrl } from '@/lib/api';
 import { useApiError } from '@/hooks/useApiError';
-import { useAuthStore } from '@/stores/auth';
+import { useAuthStore, isCarrier } from '@/stores/auth';
 import { isSubscriptionError, isPendingReviewError } from '@/lib/errors';
 import { SubscriptionContactDialog } from '@/components/SubscriptionContactDialog';
 import { PendingReviewDialog } from '@/components/PendingReviewDialog';
@@ -124,6 +124,11 @@ export function BuyRequestDetailPage() {
 
   if (loading) return <div className="min-h-screen flex items-center justify-center"><Loader2 className="h-8 w-8 animate-spin text-orange-500" /></div>;
   if (!request) return <div className="min-h-screen flex items-center justify-center p-4 text-red-500 font-bold">Request not found</div>;
+
+  // The feed and post pages are public (#4), so ProtectedRoute never sees them —
+  // a signed-in carrier reaching one has taken a link or a stale tab there, and
+  // it has nothing to do on a merchant screen.
+  if (isCarrier(user)) return <Navigate to="/carrier/jobs" replace />;
 
   const isExpired = timeLeft === 'منتهي';
   const canAcceptOffers = request.is_owner && (request.status === 'active' || request.status === 'pending_selection' || request.status === 'partially_fulfilled') && offers.length > 0;

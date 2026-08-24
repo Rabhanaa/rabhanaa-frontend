@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
-import { useSearchParams } from "react-router-dom";
-import { useAuthStore, isRetailer } from "@/stores/auth";
+import { Navigate, useSearchParams } from "react-router-dom";
+import { useAuthStore, isRetailer, isCarrier } from "@/stores/auth";
 import { AuctionCard } from "@/components/AuctionCard";
 import { Loader2, AlertCircle } from "lucide-react";
 import { api } from "@/lib/api";
@@ -43,6 +43,7 @@ export function AuctionsPage() {
   // A retailer buys from wholesalers and cannot fulfil a buy request, so the
   // tab is hidden and the feed stays on sell posts. The API enforces the same.
   const retailer = isRetailer(user);
+  const carrier = isCarrier(user);
   const [activeTab, setActiveTab] = useState<"sell" | "buy">("sell");
 
   const [, setInterests] = useState<Interest[]>([]);
@@ -149,6 +150,10 @@ export function AuctionsPage() {
     else setBuyPage((prev) => prev + 1);
   };
 
+  // The feed is public (#4), so ProtectedRoute never sees it — a signed-in
+  // carrier landing here has followed a link or a stale tab, and it cannot bid
+  // on anything it would see.
+  if (carrier) return <Navigate to="/carrier/jobs" replace />;
 
   return (
     <div className="min-h-screen bg-gray-50" dir="rtl">

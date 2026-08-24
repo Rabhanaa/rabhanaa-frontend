@@ -1,6 +1,6 @@
 import { useEffect } from 'react';
-import { Navigate } from 'react-router-dom';
-import { useAuthStore } from '@/stores/auth';
+import { Navigate, useLocation } from 'react-router-dom';
+import { useAuthStore, isCarrier } from '@/stores/auth';
 import { useConfigStore, type AppConfig } from '@/stores/config';
 import { api } from '@/lib/api';
 import { Loader2 } from 'lucide-react';
@@ -11,7 +11,9 @@ interface ProtectedRouteProps {
 
 export function ProtectedRoute({ children }: ProtectedRouteProps) {
   const token = useAuthStore((state) => state.token);
+  const user = useAuthStore((state) => state.user);
   const isInitialized = useAuthStore((state) => state.isInitialized);
+  const location = useLocation();
   const config = useConfigStore((state) => state.config);
   const setConfig = useConfigStore((state) => state.setConfig);
 
@@ -32,6 +34,14 @@ export function ProtectedRoute({ children }: ProtectedRouteProps) {
   // Only redirect if initialized and no token
   if (!token) {
     return <Navigate to="/login" replace />;
+  }
+
+  // A carrier has no business on a merchant screen: it cannot post, bid, hold
+  // orders or subscribe, and every one of those pages would either 403 or show
+  // it prices it has no need for. Deep links, stale tabs and notifications all
+  // land here, so the guard belongs at the route rather than on each caller.
+  if (isCarrier(user) && !location.pathname.startsWith('/carrier')) {
+    return <Navigate to="/carrier/jobs" replace />;
   }
 
   return <>{children}</>;
