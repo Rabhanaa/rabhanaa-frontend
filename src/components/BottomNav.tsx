@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
-import { Home, Plus, List, Coins, Package } from 'lucide-react';
-import { useAuthStore } from '@/stores/auth';
+import { Home, Plus, List, Coins, Package, Truck, User } from 'lucide-react';
+import { useAuthStore, isCarrier } from '@/stores/auth';
 import { RegisterPromptDialog } from './RegisterPromptDialog';
 
 const tabs = [
@@ -12,18 +12,32 @@ const tabs = [
   { path: '/orders', label: 'الطلبات', icon: Package },
 ];
 
+// A carrier (#14) shares none of the merchant tabs: it cannot post, bid or hold
+// orders. Three tabs, no floating create button.
+const carrierTabs = [
+  { path: '/carrier/jobs', label: 'الشحنات', icon: Truck },
+  { path: '/carrier/quotes', label: 'عروضي', icon: Coins },
+  { path: '/carrier/profile', label: 'حسابي', icon: User },
+];
+
 export function BottomNav() {
   const location = useLocation();
   const navigate = useNavigate();
   const token = useAuthStore((s) => s.token);
+  const user = useAuthStore((s) => s.user);
   const [promptOpen, setPromptOpen] = useState(false);
+  const carrier = isCarrier(user);
 
   // A visitor keeps the feed tab; the rest would only redirect them, so the
   // centre button becomes the way in instead.
-  const visibleTabs = token ? tabs : tabs.filter((t) => t.path === '/auctions' || t.path === '/create');
+  const visibleTabs = carrier
+    ? carrierTabs
+    : token
+      ? tabs
+      : tabs.filter((t) => t.path === '/auctions' || t.path === '/create');
 
   const isMainRoute = [
-    '/auctions', '/create', '/my-auctions', '/my-bids', '/orders', '/profile',
+    '/auctions', '/create', '/my-auctions', '/my-bids', '/orders', '/profile', '/carrier',
   ].some((path) => location.pathname.startsWith(path) || location.pathname === path);
 
   if (!isMainRoute) return null;

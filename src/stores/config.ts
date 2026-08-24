@@ -1,5 +1,7 @@
 import { create } from 'zustand';
 
+export type CarrierQuoteStage = 'order' | 'post' | 'both';
+
 export interface AppConfig {
   auction_duration_hours: number;
   bid_floor_percentage: number;
@@ -13,6 +15,10 @@ export interface AppConfig {
   require_documents: boolean;
   region_filter_enabled: boolean;
   post_approval_enabled: boolean;
+  // Where shipping companies quote (#14): 'order', 'post' or 'both'. Unlike the
+  // flags above this one is stored in the database, because an admin changes it
+  // from the panel rather than by redeploying.
+  carrier_quote_stage: CarrierQuoteStage;
 }
 
 interface ConfigStore {

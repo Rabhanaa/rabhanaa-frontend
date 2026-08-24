@@ -14,6 +14,7 @@ import { PendingReviewDialog } from '@/components/PendingReviewDialog';
 import { trackPixel } from '@/lib/pixel';
 import { RegisterPromptDialog } from '@/components/RegisterPromptDialog';
 import { postStatusText } from '@/lib/postStatus';
+import { ShippingQuotesPanel } from '@/components/ShippingQuotesPanel';
 
 interface SellAuction {
   public_id: string; region_name: string; interest_name: string; title: string;
@@ -140,6 +141,9 @@ export function SellAuctionDetailPage() {
           {postStatusText(auction.status)}
         </span>
       </div>
+
+      {/* Carrier prices, when the admin has quoting open on posts (#14). */}
+      {publicId && <ShippingQuotesPanel kind="sell-auction" publicId={publicId} />}
 
       {/* 8.2 Detail card */}
       <div className="px-4 -mt-6 relative z-10">

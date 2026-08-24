@@ -22,6 +22,9 @@ import { OrderDetailPage } from './pages/OrderDetailPage';
 import { ProfilePage } from './pages/ProfilePage';
 import { ChangePasswordPage } from './pages/ChangePasswordPage';
 import { ForgotPasswordPage } from './pages/ForgotPasswordPage';
+import { CarrierJobsPage } from './pages/carrier/CarrierJobsPage';
+import { CarrierQuotesPage } from './pages/carrier/CarrierQuotesPage';
+import { CarrierProfilePage } from './pages/carrier/CarrierProfilePage';
 import { SubscriptionPage } from './pages/SubscriptionPage';
 import { NotificationsPage } from './pages/NotificationsPage';
 import { SupportPage } from './pages/SupportPage';
@@ -36,7 +39,7 @@ import { UserDetailPage } from './pages/admin/UserDetailPage';
 import { AdminNotFoundPage } from './pages/admin/AdminNotFoundPage';
 import { AdminIssuesPage } from './pages/admin/AdminIssuesPage';
 import { PostModerationPage } from './pages/admin/PostModerationPage';
-import { ShippingCompaniesPage } from './pages/admin/ShippingCompaniesPage';
+import { AdminSettingsPage } from './pages/admin/AdminSettingsPage';
 import { AdminProtectedRoute } from './components/AdminProtectedRoute';
 import { AdminLayout } from './components/AdminLayout';
 import { NotificationListener } from './components/NotificationListener';
@@ -99,6 +102,13 @@ function App() {
           <Route path="/subscription" element={<ProtectedRoute><SubscriptionPage /></ProtectedRoute>} />
           <Route path="/change-password" element={<ProtectedRoute><ChangePasswordPage /></ProtectedRoute>} />
           <Route path="/forgot-password" element={<ForgotPasswordPage />} />
+
+          {/* Shipping companies (#14). Protected but not role-gated here: the API
+              refuses a merchant on every carrier endpoint, and the nav never
+              offers these routes to one. */}
+          <Route path="/carrier/jobs" element={<ProtectedRoute><MainLayout><CarrierJobsPage /></MainLayout></ProtectedRoute>} />
+          <Route path="/carrier/quotes" element={<ProtectedRoute><MainLayout><CarrierQuotesPage /></MainLayout></ProtectedRoute>} />
+          <Route path="/carrier/profile" element={<ProtectedRoute><MainLayout><CarrierProfilePage /></MainLayout></ProtectedRoute>} />
           <Route path="/admin/login" element={<AdminLoginPage />} />
           <Route path="/admin/*" element={<AdminProtectedRoute><AdminLayout /></AdminProtectedRoute>}>
             <Route index element={<AdminDashboardPage />} />
@@ -107,7 +117,7 @@ function App() {
             <Route path="users/:publicId" element={<UserDetailPage />} />
             <Route path="issues" element={<AdminIssuesPage />} />
             <Route path="posts" element={<PostModerationPage />} />
-            <Route path="shipping" element={<ShippingCompaniesPage />} />
+            <Route path="settings" element={<AdminSettingsPage />} />
             <Route path="*" element={<AdminNotFoundPage />} />
           </Route>
           <Route path="*" element={<Navigate to="/" replace />} />

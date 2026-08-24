@@ -34,6 +34,15 @@ export function isRetailer(user: User | null): boolean {
   return user?.job_key === RETAILER_ROLE;
 }
 
+// Matches the jobs row added in backend migration 042 (#14). A carrier moves
+// goods rather than trading them: it has its own screens, cannot post, bid or
+// offer, and quotes on transport instead.
+export const CARRIER_ROLE = 'shipping_company';
+
+export function isCarrier(user: User | null): boolean {
+  return user?.job_key === CARRIER_ROLE;
+}
+
 let isLoggingOut = false;
 
 export const useAuthStore = create<AuthStore>((set, get) => ({

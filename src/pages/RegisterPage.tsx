@@ -11,7 +11,7 @@ function validatePassword(p: string) {
   };
 }
 import { useNavigate } from 'react-router-dom';
-import { useAuthStore } from '@/stores/auth';
+import { useAuthStore, CARRIER_ROLE } from '@/stores/auth';
 import {
   Select,
   SelectContent,
@@ -62,10 +62,15 @@ export function RegisterPage() {
     name: '', email: '', phone: '', password: '', region_id: '', job_id: '', signup_source: '',
   });
   const [suppliesToRetail, setSuppliesToRetail] = useState(false);
+  // A carrier picks the governorates it serves where a merchant picks interests:
+  // coverage is what decides which jobs it is ever shown, so registration cannot
+  // complete without at least one. The backend refuses an empty set too.
+  const [carrierRegionIDs, setCarrierRegionIDs] = useState<number[]>([]);
   const [regions, setRegions] = useState<Region[]>([]);
   const [jobs, setJobs] = useState<Job[]>([]);
   const selectedJob = jobs.find((j) => j.id.toString() === formData.job_id);
   const isSupplySideRole = !!selectedJob && SUPPLY_SIDE_ROLES.includes(selectedJob.key);
+  const isCarrierRole = selectedJob?.key === CARRIER_ROLE;
   const [loading, setLoading] = useState(false);
   const [fetching, setFetching] = useState(true);
   const [phoneTouched, setPhoneTouched] = useState(false);
@@ -96,6 +101,7 @@ export function RegisterPage() {
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
     if (!phoneValid || !pwValid || !formData.signup_source) return;
+    if (isCarrierRole && carrierRegionIDs.length === 0) return;
     setLoading(true);
     try {
       const response = await fetch(`${API_CONFIG.FULL_URL}/auth/register`, {
@@ -106,6 +112,7 @@ export function RegisterPage() {
           region_id: parseInt(formData.region_id),
           job_id: parseInt(formData.job_id),
           supplies_to_retail: suppliesToRetail,
+          carrier_region_ids: isCarrierRole ? carrierRegionIDs : undefined,
         }),
       });
       if (!response.ok) {
@@ -115,7 +122,9 @@ export function RegisterPage() {
       const data = await response.json();
       setAuth(data.access_token, data.user);
       trackPixel('CompleteRegistration');
-      navigate('/select-interests');
+      // Carriers have no interests to pick and no location step — they wait for
+      // an admin, and their own screens are all they can use meanwhile.
+      navigate(isCarrierRole ? '/carrier/jobs' : '/select-interests');
     } catch (err) {
       handleError(err);
     } finally {
@@ -264,6 +273,41 @@ export function RegisterPage() {
             </Select>
           </div>
 
+          {isCarrierRole && (
+            <div>
+              <label className={labelClass}>المحافظات التي تشحن إليها *</label>
+              <div className="max-h-56 overflow-y-auto rounded-2xl border border-gray-200 bg-gray-50 p-3">
+                <div className="grid grid-cols-2 gap-2">
+                  {regions
+                    .filter((r) => r.is_active)
+                    .map((r) => {
+                      const checked = carrierRegionIDs.includes(r.id);
+                      return (
+                        <label key={r.id} className="flex cursor-pointer items-center gap-2 text-sm font-bold text-gray-700">
+                          <input
+                            type="checkbox"
+                            checked={checked}
+                            onChange={() =>
+                              setCarrierRegionIDs((prev) =>
+                                checked ? prev.filter((id) => id !== r.id) : [...prev, r.id],
+                              )
+                            }
+                            className="size-4 shrink-0 accent-green-600"
+                          />
+                          {r.name_ar}
+                        </label>
+                      );
+                    })}
+                </div>
+              </div>
+              <p className="mt-1.5 text-xs text-gray-500">
+                {carrierRegionIDs.length > 0
+                  ? `اخترت ${carrierRegionIDs.length} محافظة — ستظهر لك الشحنات في هذه المحافظات فقط`
+                  : 'اختر محافظة واحدة على الأقل — لن تظهر لك أي شحنات بدونها'}
+              </p>
+            </div>
+          )}
+
           {isSupplySideRole && (
             <label className="flex cursor-pointer items-center gap-3 rounded-2xl border border-gray-200 bg-gray-50 p-4">
               <input
@@ -297,7 +341,10 @@ export function RegisterPage() {
           {/* 5.5 — Submit button */}
           <button
             type="submit"
-            disabled={loading || !pwValid || !phoneValid || !formData.signup_source}
+            disabled={
+              loading || !pwValid || !phoneValid || !formData.signup_source ||
+              (isCarrierRole && carrierRegionIDs.length === 0)
+            }
             className="w-full h-14 bg-green-600 hover:bg-green-700 active:scale-95 text-white rounded-2xl font-bold text-lg shadow-lg transition-all disabled:opacity-60"
           >
             {loading ? 'جاري التسجيل...' : 'إنشاء حساب'}

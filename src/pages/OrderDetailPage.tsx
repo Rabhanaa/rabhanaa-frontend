@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
+import { ShippingQuotesPanel } from '@/components/ShippingQuotesPanel';
 import {
   AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent,
   AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle,
@@ -183,6 +184,9 @@ export function OrderDetailPage() {
             تأكيد الطلب
           </button>
         )}
+
+        {/* Carrier prices for this deal (#14). Renders nothing until one arrives. */}
+        {publicId && <ShippingQuotesPanel kind="order" publicId={publicId} />}
       </div>
 
       <AlertDialog open={showConfirmDialog} onOpenChange={setShowConfirmDialog}>
