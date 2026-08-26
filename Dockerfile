@@ -5,6 +5,35 @@ COPY package.json package-lock.json ./
 RUN --mount=type=cache,target=/root/.npm,sharing=locked \
     npm ci --ignore-scripts --prefer-offline
 COPY . .
+
+# Vite substitutes import.meta.env.VITE_* into the bundle at BUILD time, so every
+# one of these has to exist before `npm run build` runs. Without them the build
+# still succeeds and ships `undefined` — the site loads and silently cannot reach
+# the API, with no error in any log. Coolify passes env vars marked
+# "Is Build Variable? = ON" through as --build-arg, which is what these pick up.
+ARG VITE_API_URL
+ARG VITE_FB_PIXEL_ID
+ARG VITE_FIREBASE_API_KEY
+ARG VITE_FIREBASE_AUTH_DOMAIN
+ARG VITE_FIREBASE_PROJECT_ID
+ARG VITE_FIREBASE_STORAGE_BUCKET
+ARG VITE_FIREBASE_MESSAGING_SENDER_ID
+ARG VITE_FIREBASE_APP_ID
+ARG VITE_FIREBASE_VAPID_KEY
+
+ENV VITE_API_URL=$VITE_API_URL \
+    VITE_FB_PIXEL_ID=$VITE_FB_PIXEL_ID \
+    VITE_FIREBASE_API_KEY=$VITE_FIREBASE_API_KEY \
+    VITE_FIREBASE_AUTH_DOMAIN=$VITE_FIREBASE_AUTH_DOMAIN \
+    VITE_FIREBASE_PROJECT_ID=$VITE_FIREBASE_PROJECT_ID \
+    VITE_FIREBASE_STORAGE_BUCKET=$VITE_FIREBASE_STORAGE_BUCKET \
+    VITE_FIREBASE_MESSAGING_SENDER_ID=$VITE_FIREBASE_MESSAGING_SENDER_ID \
+    VITE_FIREBASE_APP_ID=$VITE_FIREBASE_APP_ID \
+    VITE_FIREBASE_VAPID_KEY=$VITE_FIREBASE_VAPID_KEY
+
+# Fail the build rather than ship a bundle that cannot reach the API.
+RUN test -n "$VITE_API_URL" || (echo "VITE_API_URL is empty — set it as a BUILD variable" && exit 1)
+
 RUN npm run build
 FROM nginx:1.27-alpine AS final
 COPY --from=builder /app/dist /usr/share/nginx/html
