@@ -50,6 +50,23 @@ interface Invoice {
   is_overdue: boolean;
 }
 
+interface HistoryInvoice extends Invoice {
+  seller_public_id: string;
+  seller_name: string;
+  seller_phone: string;
+  paid_at?: string;
+  payment_method?: string;
+  payment_reference?: string;
+  waived_reason?: string;
+  recorded_by_name?: string;
+}
+
+interface HistoryResponse {
+  invoices: HistoryInvoice[];
+  total: number;
+  totals: BalancesResponse['totals'];
+}
+
 const PAYMENT_METHODS = [
   { value: 'vodafone_cash', label: 'فودافون كاش' },
   { value: 'instapay', label: 'إنستاباي' },
@@ -81,15 +98,29 @@ export function AdminCommissionsPage() {
   const [submitting, setSubmitting] = useState(false);
   const [reminding, setReminding] = useState<string | null>(null);
 
+  // Two different questions, so two different lists: "who owes me money" is a
+  // worklist of unpaid invoices, while the history is the record of what was
+  // collected — which the worklist drops the moment an invoice is paid.
+  const [tab, setTab] = useState<'due' | 'history'>('due');
+  const [history, setHistory] = useState<HistoryResponse | null>(null);
+
   const load = useCallback(() => {
     setLoading(true);
+    if (tab === 'history') {
+      api
+        .get<HistoryResponse>(`/admin/commissions/history?page=${page}&page_size=${PAGE_SIZE}`)
+        .then(setHistory)
+        .catch(handleError)
+        .finally(() => setLoading(false));
+      return;
+    }
     const filter = overdueOnly ? '&filter=overdue' : '';
     api
       .get<BalancesResponse>(`/admin/commissions?page=${page}&page_size=${PAGE_SIZE}${filter}`)
       .then(setData)
       .catch(handleError)
       .finally(() => setLoading(false));
-  }, [page, overdueOnly]);
+  }, [page, overdueOnly, tab]);
 
   useEffect(load, [load]);
 
@@ -143,6 +174,13 @@ export function AdminCommissionsPage() {
     }
   };
 
+  // Both tabs paginate over their own list, and both responses carry the header
+  // totals so the figures are right whichever tab was opened first.
+  const total = tab === 'history' ? history?.total ?? 0 : data?.total ?? 0;
+  const totals = (tab === 'history' ? history?.totals : data?.totals) ?? {
+    total_outstanding: '0', total_overdue: '0', total_collected: '0',
+  };
+
   return (
     <div className="space-y-6" dir="rtl">
       <AdminPageHeader title="العمولات" />
@@ -154,15 +192,15 @@ export function AdminCommissionsPage() {
           <CardContent className="pt-6">
             <p className="text-xs text-muted-foreground">إجمالي المستحق</p>
             <p className="mt-1 text-2xl font-bold">
-              {loading ? <Skeleton className="h-8 w-24" /> : money(data?.totals.total_outstanding ?? '0')}
+              {loading ? <Skeleton className="h-8 w-24" /> : money(totals.total_outstanding)}
             </p>
           </CardContent>
         </Card>
-        <Card className={Number(data?.totals.total_overdue ?? 0) > 0 ? 'border-red-200' : ''}>
+        <Card className={Number(totals.total_overdue) > 0 ? 'border-red-200' : ''}>
           <CardContent className="pt-6">
             <p className="text-xs text-muted-foreground">متأخر السداد</p>
             <p className="mt-1 text-2xl font-bold text-red-600">
-              {loading ? <Skeleton className="h-8 w-24" /> : money(data?.totals.total_overdue ?? '0')}
+              {loading ? <Skeleton className="h-8 w-24" /> : money(totals.total_overdue)}
             </p>
           </CardContent>
         </Card>
@@ -170,23 +208,117 @@ export function AdminCommissionsPage() {
           <CardContent className="pt-6">
             <p className="text-xs text-muted-foreground">تم تحصيله</p>
             <p className="mt-1 text-2xl font-bold text-green-600">
-              {loading ? <Skeleton className="h-8 w-24" /> : money(data?.totals.total_collected ?? '0')}
+              {loading ? <Skeleton className="h-8 w-24" /> : money(totals.total_collected)}
             </p>
           </CardContent>
         </Card>
       </div>
 
-      <div className="flex gap-2">
-        <Button variant={overdueOnly ? 'outline' : 'default'} size="sm"
-          onClick={() => { setOverdueOnly(false); setPage(1); }}>
-          الكل
-        </Button>
-        <Button variant={overdueOnly ? 'default' : 'outline'} size="sm"
-          onClick={() => { setOverdueOnly(true); setPage(1); }}>
-          المتأخرون فقط
-        </Button>
+      <div className="flex items-center justify-between gap-2">
+        <div className="flex gap-2">
+          <Button variant={tab === 'due' ? 'default' : 'outline'} size="sm"
+            onClick={() => { setTab('due'); setPage(1); }}>
+            المستحقات
+          </Button>
+          <Button variant={tab === 'history' ? 'default' : 'outline'} size="sm"
+            onClick={() => { setTab('history'); setPage(1); }}>
+            سجل التحصيل
+          </Button>
+        </div>
+
+        {tab === 'due' && (
+          <div className="flex gap-2">
+            <Button variant={overdueOnly ? 'outline' : 'secondary'} size="sm"
+              onClick={() => { setOverdueOnly(false); setPage(1); }}>
+              الكل
+            </Button>
+            <Button variant={overdueOnly ? 'secondary' : 'outline'} size="sm"
+              onClick={() => { setOverdueOnly(true); setPage(1); }}>
+              المتأخرون فقط
+            </Button>
+          </div>
+        )}
       </div>
 
+      {tab === 'history' ? (
+        <Card>
+          <CardContent className="p-0">
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>البائع</TableHead>
+                  <TableHead>الأسبوع</TableHead>
+                  <TableHead>المبلغ</TableHead>
+                  <TableHead>الحالة</TableHead>
+                  <TableHead>طريقة السداد</TableHead>
+                  <TableHead>تاريخ التحصيل</TableHead>
+                  <TableHead>سجّلها</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {loading ? (
+                  <TableRow>
+                    <TableCell colSpan={7}><Skeleton className="h-10 w-full" /></TableCell>
+                  </TableRow>
+                ) : (history?.invoices.length ?? 0) === 0 ? (
+                  <TableRow>
+                    <TableCell colSpan={7} className="py-10 text-center text-sm text-muted-foreground">
+                      لم يتم تحصيل أي عمولات بعد
+                    </TableCell>
+                  </TableRow>
+                ) : (
+                  history?.invoices.map((inv) => (
+                    <TableRow key={inv.public_id}>
+                      <TableCell>
+                        <Link to={`/admin/users/${inv.seller_public_id}`} className="font-medium hover:underline">
+                          {inv.seller_name}
+                        </Link>
+                      </TableCell>
+                      <TableCell className="text-xs text-muted-foreground">
+                        {new Date(inv.period_start).toLocaleDateString('ar-EG')} —{' '}
+                        {new Date(inv.period_end).toLocaleDateString('ar-EG')}
+                      </TableCell>
+                      <TableCell className="font-bold">{money(inv.total_amount)}</TableCell>
+                      <TableCell>
+                        {inv.status === 'paid' ? (
+                          <span className="rounded-full border border-green-200 bg-green-50 px-2 py-0.5 text-[10px] font-bold text-green-700">
+                            مدفوعة
+                          </span>
+                        ) : (
+                          // The reason is the whole point of a write-off: without
+                          // it a waived invoice is indistinguishable from a mistake.
+                          <span
+                            className="rounded-full border border-gray-200 bg-gray-100 px-2 py-0.5 text-[10px] font-bold text-gray-600"
+                            title={inv.waived_reason}
+                          >
+                            ملغاة
+                          </span>
+                        )}
+                      </TableCell>
+                      <TableCell className="text-xs">
+                        {inv.payment_method
+                          ? PAYMENT_METHODS.find((m) => m.value === inv.payment_method)?.label ?? inv.payment_method
+                          : '—'}
+                        {inv.payment_reference && (
+                          <span className="block text-[10px] text-muted-foreground" dir="ltr">
+                            {inv.payment_reference}
+                          </span>
+                        )}
+                      </TableCell>
+                      <TableCell className="text-xs text-muted-foreground">
+                        {inv.paid_at ? new Date(inv.paid_at).toLocaleDateString('ar-EG') : '—'}
+                      </TableCell>
+                      <TableCell className="text-xs text-muted-foreground">
+                        {inv.recorded_by_name || '—'}
+                      </TableCell>
+                    </TableRow>
+                  ))
+                )}
+              </TableBody>
+            </Table>
+          </CardContent>
+        </Card>
+      ) : (
       <Card>
         <CardContent className="p-0">
           <Table>
@@ -253,17 +385,18 @@ export function AdminCommissionsPage() {
           </Table>
         </CardContent>
       </Card>
+      )}
 
-      {(data?.total ?? 0) > PAGE_SIZE && (
+      {total > PAGE_SIZE && (
         <div className="flex justify-center gap-2">
           <Button variant="outline" size="sm" disabled={page === 1} onClick={() => setPage((p) => p - 1)}>
             السابق
           </Button>
           <span className="px-3 py-1.5 text-sm">
-            {page} / {Math.ceil((data?.total ?? 0) / PAGE_SIZE)}
+            {page} / {Math.ceil(total / PAGE_SIZE)}
           </span>
           <Button variant="outline" size="sm"
-            disabled={page >= Math.ceil((data?.total ?? 0) / PAGE_SIZE)}
+            disabled={page >= Math.ceil(total / PAGE_SIZE)}
             onClick={() => setPage((p) => p + 1)}>
             التالي
           </Button>
