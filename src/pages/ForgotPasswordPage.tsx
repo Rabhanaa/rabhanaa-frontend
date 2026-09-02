@@ -53,7 +53,7 @@ export function ForgotPasswordPage() {
     e?.preventDefault();
     setLoading(true);
     try {
-      await api.post('/auth/forgot-password', { email });
+      await api.post('/auth/forgot-password', { email: email.trim() });
       // The server answers identically whether or not the address exists, so
       // there is nothing to branch on here.
       toast.success('إذا كان هذا البريد مسجلاً لدينا فسيصلك رمز');
@@ -71,7 +71,7 @@ export function ForgotPasswordPage() {
     setLoading(true);
     setCodeError('');
     try {
-      await api.post('/auth/verify-reset-code', { email, code });
+      await api.post('/auth/verify-reset-code', { email: email.trim(), code });
       setStep('password');
     } catch (err) {
       setCodeError(
@@ -89,7 +89,7 @@ export function ForgotPasswordPage() {
     e.preventDefault();
     setLoading(true);
     try {
-      await api.post('/auth/reset-password', { email, code, new_password: password });
+      await api.post('/auth/reset-password', { email: email.trim(), code, new_password: password });
       // Deliberately not auto-logged-in: the reset just signed this account out
       // everywhere, and typing the new password once confirms it took.
       toast.success('تم تغيير كلمة المرور — سجّل الدخول بكلمة المرور الجديدة');

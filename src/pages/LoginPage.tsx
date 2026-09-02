@@ -42,7 +42,7 @@ export function LoginPage() {
     setLoading(true);
 
     try {
-      const data = await api.post<LoginResponse>('/auth/login', { email, password });
+      const data = await api.post<LoginResponse>('/auth/login', { email: email.trim(), password });
       setAuth(data.access_token, data.user);
       registerPushToken().catch((err) => console.error('[push] Token registration failed:', err))
       // A carrier has no use for the merchant feed — it cannot bid on anything

@@ -190,7 +190,7 @@ export function RegisterPage() {
             <input
               type="email"
               value={formData.email}
-              onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+              onChange={(e) => setFormData({ ...formData, email: e.target.value.trim() })}
               className={defaultInputClass}
               placeholder="example@email.com"
               required
