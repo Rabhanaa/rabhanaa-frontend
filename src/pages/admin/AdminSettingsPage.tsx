@@ -16,6 +16,7 @@ const CARRIER_QUOTE_STAGE = 'carrier_quote_stage';
 const COMMISSION_RATE = 'commission_rate_percent';
 const COMMISSION_CLOSE_DAY = 'commission_week_close_day';
 const COMMISSION_GRACE_DAYS = 'commission_grace_days';
+const COMMISSION_REMINDER_DAYS = 'commission_reminder_days';
 
 const dayLabel: Record<string, string> = {
   saturday: 'السبت', sunday: 'الأحد', monday: 'الإثنين', tuesday: 'الثلاثاء',
@@ -211,6 +212,15 @@ export function AdminSettingsPage() {
             value={settings[COMMISSION_GRACE_DAYS] ?? ''}
             saving={saving === COMMISSION_GRACE_DAYS}
             onSave={(v) => update(COMMISSION_GRACE_DAYS, v)}
+          />
+
+          <NumericSetting
+            label="تكرار التذكير"
+            help="يُرسل تذكير للبائع عند استحقاق الفاتورة، ثم يتكرر بهذه المدة حتى السداد."
+            suffix="يوم"
+            value={settings[COMMISSION_REMINDER_DAYS] ?? ''}
+            saving={saving === COMMISSION_REMINDER_DAYS}
+            onSave={(v) => update(COMMISSION_REMINDER_DAYS, v)}
           />
         </div>
 

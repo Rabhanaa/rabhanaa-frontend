@@ -124,6 +124,7 @@ export function resolveNotificationLink(
     // Platform commission (#13). The invoice lives on the seller's own screen;
     // there is no order or post to open.
     case 'commission_invoice_issued':
+    case 'commission_payment_reminder':
       return '/commissions'
 
     case 'account_approved':

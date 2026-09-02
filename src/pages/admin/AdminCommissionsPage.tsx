@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { toast } from 'sonner';
-import { AlertTriangle, Loader2, Phone } from 'lucide-react';
+import { AlertTriangle, Bell, Loader2, Phone } from 'lucide-react';
 import { AdminPageHeader } from '@/components/admin/AdminPageHeader';
 import { api } from '@/lib/api';
 import { useApiError } from '@/hooks/useApiError';
@@ -79,6 +79,7 @@ export function AdminCommissionsPage() {
   const [method, setMethod] = useState('vodafone_cash');
   const [reference, setReference] = useState('');
   const [submitting, setSubmitting] = useState(false);
+  const [reminding, setReminding] = useState<string | null>(null);
 
   const load = useCallback(() => {
     setLoading(true);
@@ -124,6 +125,21 @@ export function AdminCommissionsPage() {
       handleError(err);
     } finally {
       setSubmitting(false);
+    }
+  };
+
+  // Ignores the automatic cadence on purpose: an admin pressing this has a
+  // reason. It still stamps the invoice, so the scheduled reminder moves out
+  // rather than arriving right behind this one.
+  const remind = async (invoiceId: string) => {
+    setReminding(invoiceId);
+    try {
+      await api.post(`/admin/commissions/invoices/${invoiceId}/remind`, {});
+      toast.success('تم إرسال التذكير');
+    } catch (err) {
+      handleError(err);
+    } finally {
+      setReminding(null);
     }
   };
 
@@ -303,9 +319,21 @@ export function AdminCommissionsPage() {
                           {inv.is_overdue && <span className="ms-2 text-red-600">متأخرة</span>}
                         </p>
                       </div>
-                      <Button size="sm" disabled={submitting} onClick={() => markPaid(inv.public_id)}>
-                        {submitting ? <Loader2 className="h-4 w-4 animate-spin" /> : 'تم السداد'}
-                      </Button>
+                      <div className="flex shrink-0 gap-2">
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          disabled={reminding === inv.public_id}
+                          onClick={() => remind(inv.public_id)}
+                        >
+                          {reminding === inv.public_id
+                            ? <Loader2 className="h-4 w-4 animate-spin" />
+                            : <><Bell className="me-1 h-3 w-3" />تذكير</>}
+                        </Button>
+                        <Button size="sm" disabled={submitting} onClick={() => markPaid(inv.public_id)}>
+                          {submitting ? <Loader2 className="h-4 w-4 animate-spin" /> : 'تم السداد'}
+                        </Button>
+                      </div>
                     </div>
                   ))}
                 </div>
