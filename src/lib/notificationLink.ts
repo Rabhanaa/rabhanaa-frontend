@@ -121,6 +121,11 @@ export function resolveNotificationLink(
       if (requestId) return `/auctions/buy/${requestId}`
       return '/my-auctions'
 
+    // Platform commission (#13). The invoice lives on the seller's own screen;
+    // there is no order or post to open.
+    case 'commission_invoice_issued':
+      return '/commissions'
+
     case 'account_approved':
     case 'account_rejected':
     case 'account_suspended':

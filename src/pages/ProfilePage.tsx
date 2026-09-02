@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuthStore } from "@/stores/auth";
-import { LogOut, MapPin, Briefcase, Mail, Phone, Loader2, RefreshCw } from "lucide-react";
+import { LogOut, MapPin, Briefcase, Mail, Phone, Loader2, RefreshCw, Wallet, ChevronLeft } from "lucide-react";
 import { api } from "@/lib/api";
 import { useApiError } from "@/hooks/useApiError";
 import { deregisterPushToken } from "@/lib/notifications";
@@ -196,6 +196,23 @@ export function ProfilePage() {
             </label>
           </div>
         )}
+
+        {/* Platform commission (#13). A row rather than a nav tab: the bottom
+            bar has no free slot, and this is something a seller checks
+            occasionally rather than daily. */}
+        <button
+          onClick={() => navigate("/commissions")}
+          className="flex w-full items-center gap-3 rounded-3xl border border-gray-100 bg-white p-4 text-start shadow-sm transition-colors hover:bg-gray-50"
+        >
+          <div className="flex size-9 shrink-0 items-center justify-center rounded-xl bg-green-50">
+            <Wallet size={16} className="text-green-600" />
+          </div>
+          <div className="min-w-0 flex-1">
+            <p className="text-sm font-bold text-gray-900">عمولة المنصة</p>
+            <p className="text-[11px] text-gray-400">المستحق عليك وفواتير الأسابيع السابقة</p>
+          </div>
+          <ChevronLeft size={18} className="shrink-0 text-gray-300" />
+        </button>
 
         {/* Manual update check. The auto-prompt only fires if its 60s poll
             happens to catch a new worker while the app is open; this is the way

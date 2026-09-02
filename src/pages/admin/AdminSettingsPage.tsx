@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { Loader2, Settings } from 'lucide-react';
+import { Loader2, Settings, Percent } from 'lucide-react';
 import { toast } from 'sonner';
 import { api } from '@/lib/api';
 import { useApiError } from '@/hooks/useApiError';
@@ -13,6 +13,14 @@ interface SettingsResponse {
 }
 
 const CARRIER_QUOTE_STAGE = 'carrier_quote_stage';
+const COMMISSION_RATE = 'commission_rate_percent';
+const COMMISSION_CLOSE_DAY = 'commission_week_close_day';
+const COMMISSION_GRACE_DAYS = 'commission_grace_days';
+
+const dayLabel: Record<string, string> = {
+  saturday: 'السبت', sunday: 'الأحد', monday: 'الإثنين', tuesday: 'الثلاثاء',
+  wednesday: 'الأربعاء', thursday: 'الخميس', friday: 'الجمعة',
+};
 
 const stageLabel: Record<string, string> = {
   order: 'بعد إتمام الصفقة فقط',
@@ -28,6 +36,45 @@ const stageHelp: Record<string, string> = {
   both:
     'شركات الشحن ترى المنشورات والصفقات المكتملة معاً.',
 };
+
+// Saved by an explicit button rather than on change: these are billing numbers,
+// and a half-typed rate must never reach the server.
+function NumericSetting({
+  label, help, suffix, value, saving, onSave,
+}: {
+  label: string;
+  help: string;
+  suffix: string;
+  value: string;
+  saving: boolean;
+  onSave: (next: string) => void;
+}) {
+  const [draft, setDraft] = useState(value);
+  useEffect(() => setDraft(value), [value]);
+
+  return (
+    <div>
+      <label className="mb-1 block text-sm font-semibold">{label}</label>
+      <p className="mb-2 text-xs text-muted-foreground">{help}</p>
+      <div className="flex items-center gap-2">
+        <input
+          value={draft}
+          onChange={(e) => setDraft(e.target.value)}
+          inputMode="decimal"
+          className="h-10 w-32 rounded-md border border-input bg-background px-3 text-sm"
+        />
+        <span className="text-sm text-muted-foreground">{suffix}</span>
+        <button
+          onClick={() => onSave(draft.trim())}
+          disabled={saving || draft.trim() === value}
+          className="h-10 rounded-md bg-primary px-4 text-sm font-medium text-primary-foreground disabled:opacity-50"
+        >
+          {saving ? <Loader2 className="h-4 w-4 animate-spin" /> : 'حفظ'}
+        </button>
+      </div>
+    </div>
+  );
+}
 
 export function AdminSettingsPage() {
   const { handleError } = useApiError();
@@ -117,6 +164,60 @@ export function AdminSettingsPage() {
         <p className="mt-4 rounded-lg bg-muted p-3 text-xs text-muted-foreground">
           التغيير يسري على الفور. العروض المقدمة بالفعل تبقى كما هي — يمكن للتجار الرد عليها
           في كل الأحوال.
+        </p>
+      </div>
+
+      {/* Platform commission (#13) */}
+      <div className="rounded-lg border bg-card p-6">
+        <div className="mb-1 flex items-center gap-2">
+          <Percent className="h-4 w-4 text-muted-foreground" />
+          <h3 className="text-base font-semibold">عمولة المنصة</h3>
+        </div>
+        <p className="mb-5 text-sm text-muted-foreground">
+          نسبة المنصة من كل صفقة مكتملة، وموعد إصدار الفواتير الأسبوعية.
+        </p>
+
+        <div className="space-y-6">
+          <NumericSetting
+            label="نسبة العمولة"
+            help="تُحسب على قيمة الصفقة كاملة (سعر الوحدة × الكمية)."
+            suffix="%"
+            value={settings[COMMISSION_RATE] ?? ''}
+            saving={saving === COMMISSION_RATE}
+            onSave={(v) => update(COMMISSION_RATE, v)}
+          />
+
+          <div>
+            <label className="mb-1 block text-sm font-semibold">يوم إصدار الفواتير</label>
+            <p className="mb-2 text-xs text-muted-foreground">
+              تصدر الفاتورة فجر هذا اليوم عن الأسبوع المنتهي قبله (بتوقيت القاهرة).
+            </p>
+            <select
+              value={settings[COMMISSION_CLOSE_DAY] ?? ''}
+              disabled={saving === COMMISSION_CLOSE_DAY}
+              onChange={(e) => update(COMMISSION_CLOSE_DAY, e.target.value)}
+              className="h-10 w-40 rounded-md border border-input bg-background px-3 text-sm"
+            >
+              {(options[COMMISSION_CLOSE_DAY] || []).map((d) => (
+                <option key={d} value={d}>{dayLabel[d] || d}</option>
+              ))}
+            </select>
+          </div>
+
+          <NumericSetting
+            label="مهلة السداد"
+            help="عدد الأيام قبل اعتبار الفاتورة متأخرة وظهور البائع في قائمة المتأخرين."
+            suffix="يوم"
+            value={settings[COMMISSION_GRACE_DAYS] ?? ''}
+            saving={saving === COMMISSION_GRACE_DAYS}
+            onSave={(v) => update(COMMISSION_GRACE_DAYS, v)}
+          />
+        </div>
+
+        {/* The single most surprising behaviour here, stated where it is set. */}
+        <p className="mt-5 rounded-lg bg-muted p-3 text-xs text-muted-foreground">
+          تغيير النسبة يسري على المبيعات الجديدة فقط. العمولات المحتسبة بالفعل تحتفظ بالنسبة
+          التي حُسبت بها، والفواتير الصادرة لا تتغير.
         </p>
       </div>
     </div>

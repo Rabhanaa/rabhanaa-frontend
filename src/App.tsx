@@ -40,6 +40,8 @@ import { AdminNotFoundPage } from './pages/admin/AdminNotFoundPage';
 import { AdminIssuesPage } from './pages/admin/AdminIssuesPage';
 import { PostModerationPage } from './pages/admin/PostModerationPage';
 import { AdminSettingsPage } from './pages/admin/AdminSettingsPage';
+import { AdminCommissionsPage } from './pages/admin/AdminCommissionsPage';
+import { CommissionsPage } from './pages/CommissionsPage';
 import { AdminProtectedRoute } from './components/AdminProtectedRoute';
 import { AdminLayout } from './components/AdminLayout';
 import { NotificationListener } from './components/NotificationListener';
@@ -88,6 +90,9 @@ function App() {
           <Route path="/select-interests" element={<ProtectedRoute><SelectInterestsPage /></ProtectedRoute>} />
           <Route path="/set-location" element={<ProtectedRoute><SetLocationPage /></ProtectedRoute>} />
           <Route path="/documents" element={<ProtectedRoute><UploadDocumentsPage /></ProtectedRoute>} />
+          {/* Platform commission (#13). No MainLayout: the screen carries its own
+              header and back button, like the other full-page detail views. */}
+          <Route path="/commissions" element={<ProtectedRoute><CommissionsPage /></ProtectedRoute>} />
           <Route path="/auctions" element={<MainLayout><AuctionsPage /></MainLayout>} />
           <Route path="/auctions/sell/:publicId" element={<MainLayout><SellAuctionDetailPage /></MainLayout>} />
           <Route path="/auctions/buy/:publicId" element={<MainLayout><BuyRequestDetailPage /></MainLayout>} />
@@ -117,6 +122,7 @@ function App() {
             <Route path="users/:publicId" element={<UserDetailPage />} />
             <Route path="issues" element={<AdminIssuesPage />} />
             <Route path="posts" element={<PostModerationPage />} />
+            <Route path="commissions" element={<AdminCommissionsPage />} />
             <Route path="settings" element={<AdminSettingsPage />} />
             <Route path="*" element={<AdminNotFoundPage />} />
           </Route>
