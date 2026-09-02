@@ -6,7 +6,7 @@ import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
 import { useApiError } from '@/hooks/useApiError';
-import { registerPushToken } from '@/lib/notifications';
+import { ensurePushToken } from '@/lib/notifications';
 import { Banknote, Zap, Clock, ShieldCheck } from 'lucide-react';
 
 const benefits = [
@@ -44,7 +44,14 @@ export function LoginPage() {
     try {
       const data = await api.post<LoginResponse>('/auth/login', { email: email.trim(), password });
       setAuth(data.access_token, data.user);
-      registerPushToken().catch((err) => console.error('[push] Token registration failed:', err))
+      // Syncs the token when permission was already granted; it never prompts.
+      //
+      // Asking here used to be a permission request, which works on Android and
+      // silently fails on iOS: Safari only honours requestPermission() from a
+      // live user gesture, and awaiting the login response has already ended the
+      // one that submitted this form. The ask belongs to the تفعيل button in
+      // NotificationPrompt, which runs inside a real tap on every platform.
+      ensurePushToken().catch((err) => console.error('[push] Token sync failed:', err))
       // A carrier has no use for the merchant feed — it cannot bid on anything
       // there — so send each role to the screen it actually works from.
       navigate(

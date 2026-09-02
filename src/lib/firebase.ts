@@ -1,5 +1,5 @@
 import { initializeApp } from 'firebase/app'
-import { getMessaging } from 'firebase/messaging'
+import { getMessaging, type Messaging } from 'firebase/messaging'
 
 const apiKey = import.meta.env.VITE_FIREBASE_API_KEY as string | undefined
 
@@ -9,8 +9,18 @@ export const VAPID_KEY: string = import.meta.env.VITE_FIREBASE_VAPID_KEY ?? ''
 // The app runs normally without them — push notifications are silently skipped.
 export const firebaseConfigured = Boolean(apiKey)
 
-export const messaging = firebaseConfigured
-  ? getMessaging(
+// getMessaging() throws messaging/unsupported-browser wherever the Push API is
+// missing, and this module is imported transitively by App.tsx — so an
+// unguarded call takes the entire app down rather than just disabling
+// notifications.
+//
+// That is not hypothetical: iOS exposes the Notification API only inside an
+// installed web app, so every iPhone visitor arriving through Safari — which is
+// what public browsing (#4) invites — hits the unsupported path.
+function initMessaging(): Messaging | null {
+  if (!firebaseConfigured) return null
+  try {
+    return getMessaging(
       initializeApp({
         apiKey,
         authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN,
@@ -20,4 +30,11 @@ export const messaging = firebaseConfigured
         appId: import.meta.env.VITE_FIREBASE_APP_ID,
       })
     )
-  : null
+  } catch {
+    // Browsing works; only push is unavailable. pushSupported() already treats a
+    // null messaging instance as "no push", so every caller degrades quietly.
+    return null
+  }
+}
+
+export const messaging = initMessaging()

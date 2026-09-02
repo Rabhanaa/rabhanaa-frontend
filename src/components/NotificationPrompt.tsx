@@ -1,7 +1,8 @@
 import { useEffect, useState } from 'react';
-import { Bell, X } from 'lucide-react';
+import { Bell, Share, X } from 'lucide-react';
 import { toast } from 'sonner';
 import { pushSupported, registerPushToken } from '@/lib/notifications';
+import { needsIOSInstallForPush } from '@/lib/platform';
 import { useAuthStore } from '@/stores/auth';
 
 const DISMISSED_KEY = 'notif-prompt-dismissed';
@@ -15,13 +16,26 @@ export function NotificationPrompt() {
   const [busy, setBusy] = useState(false);
   const token = useAuthStore((s) => s.token);
 
+  // On iOS there is nothing to ask for until the app is installed: Safari
+  // exposes the Notification API only to a Home Screen app. Without this the
+  // card is simply absent and the user is left to guess why no notification
+  // ever arrives.
+  const [needsInstall, setNeedsInstall] = useState(false);
+
   useEffect(() => {
     // Registering a device token needs an account, so offering this to a
     // visitor would burn their permission prompt on a request that 401s.
     if (!token) return;
+    if (localStorage.getItem(DISMISSED_KEY)) return;
+
+    if (needsIOSInstallForPush()) {
+      setNeedsInstall(true);
+      setVisible(true);
+      return;
+    }
+
     if (!pushSupported()) return;
     if (Notification.permission !== 'default') return; // granted or denied — nothing to ask
-    if (localStorage.getItem(DISMISSED_KEY)) return;
     setVisible(true);
   }, [token]);
 
@@ -50,6 +64,28 @@ export function NotificationPrompt() {
   };
 
   if (!visible) return null;
+
+  // iOS cannot be prompted from a browser tab, so there is no button to offer —
+  // only the two steps that make notifications possible at all.
+  if (needsInstall) {
+    return (
+      <div className="mx-4 mt-3 flex items-start gap-3 rounded-2xl border border-blue-100 bg-blue-50 p-3" dir="rtl">
+        <div className="grid size-10 shrink-0 place-items-center rounded-full bg-blue-100">
+          <Share className="size-5 text-blue-600" aria-hidden="true" />
+        </div>
+        <div className="min-w-0 flex-1">
+          <p className="text-sm font-bold text-gray-900">لتصلك الإشعارات على الآيفون</p>
+          <p className="mt-0.5 text-xs text-gray-600">
+            أضف ربحانة إلى الشاشة الرئيسية: اضغط زر المشاركة في سفاري ثم «إضافة إلى الشاشة
+            الرئيسية»، وافتح التطبيق من الأيقونة.
+          </p>
+        </div>
+        <button onClick={dismiss} aria-label="إغلاق" className="shrink-0 text-gray-400 hover:text-gray-600">
+          <X className="size-4" aria-hidden="true" />
+        </button>
+      </div>
+    );
+  }
 
   return (
     <div className="mx-4 mt-3 flex items-center gap-3 rounded-2xl border border-green-100 bg-green-50 p-3" dir="rtl">
