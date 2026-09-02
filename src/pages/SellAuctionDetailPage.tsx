@@ -7,6 +7,7 @@ import {
 import { Clock, Package, MapPin, Tag, CheckCircle2, Loader2, ChevronRight, Send, Gavel } from 'lucide-react';
 import { api, getImageUrl } from '@/lib/api';
 import { useApiError } from '@/hooks/useApiError';
+import { useCountdown } from '@/hooks/useCountdown';
 import { useAuthStore, isCarrier } from '@/stores/auth';
 import { isSubscriptionError, isPendingReviewError } from '@/lib/errors';
 import { SubscriptionContactDialog } from '@/components/SubscriptionContactDialog';
@@ -38,7 +39,6 @@ export function SellAuctionDetailPage() {
   const [auction, setAuction] = useState<SellAuction | null>(null);
   const [bids, setBids] = useState<Bid[]>([]);
   const [loading, setLoading] = useState(true);
-  const [timeLeft, setTimeLeft] = useState('');
   const [bidAmount, setBidAmount] = useState('');
   const [submittingBid, setSubmittingBid] = useState(false);
   const [submittingSelect, setSubmittingSelect] = useState(false);
@@ -61,23 +61,9 @@ export function SellAuctionDetailPage() {
       .then((d) => setBids(d.bids || [])).catch(console.error);
   }, [publicId, auction?.is_owner]);
 
-  useEffect(() => {
-    if (!auction?.end_time) return;
-    const updateTime = () => {
-      const diff = new Date(auction.end_time).getTime() - Date.now();
-      if (diff <= 0) { setTimeLeft('منتهي'); return; }
-      const h = Math.floor(diff / 3600000);
-      const m = Math.floor((diff % 3600000) / 60000);
-      const s = Math.floor((diff % 60000) / 1000);
-      if (h > 24) setTimeLeft(`${Math.floor(h / 24)} يوم`);
-      else if (h > 0) setTimeLeft(`${h}س ${m}د`);
-      else if (m > 0) setTimeLeft(`${m}د ${s}ث`);
-      else setTimeLeft(`${s}ث`);
-    };
-    updateTime();
-    const interval = setInterval(updateTime, 1000);
-    return () => clearInterval(interval);
-  }, [auction?.end_time]);
+  // Seconds shown here: this is the one countdown on the page, and it is what a
+  // bidder watches while deciding.
+  const { timeLeft, isExpired } = useCountdown(auction?.end_time, true);
 
 
   const handleSelectBid = async (bidId: string) => {
@@ -128,7 +114,6 @@ export function SellAuctionDetailPage() {
   // it has nothing to do on a merchant screen.
   if (isCarrier(user)) return <Navigate to="/carrier/jobs" replace />;
 
-  const isExpired = timeLeft === 'منتهي';
 
   return (
     <div className="min-h-screen bg-gray-50 pb-24" dir="rtl">

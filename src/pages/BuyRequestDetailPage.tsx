@@ -7,6 +7,7 @@ import {
 import { Clock, Package, MapPin, Tag, CheckCircle2, Loader2, ChevronRight, Send, Gavel } from 'lucide-react';
 import { api, getImageUrl } from '@/lib/api';
 import { useApiError } from '@/hooks/useApiError';
+import { useCountdown } from '@/hooks/useCountdown';
 import { useAuthStore, isCarrier } from '@/stores/auth';
 import { isSubscriptionError, isPendingReviewError } from '@/lib/errors';
 import { SubscriptionContactDialog } from '@/components/SubscriptionContactDialog';
@@ -41,7 +42,6 @@ export function BuyRequestDetailPage() {
   const [request, setRequest] = useState<BuyRequest | null>(null);
   const [offers, setOffers] = useState<Offer[]>([]);
   const [loading, setLoading] = useState(true);
-  const [timeLeft, setTimeLeft] = useState('');
   const [offerPrice, setOfferPrice] = useState('');
   const [submittingAccept, setSubmittingAccept] = useState(false);
   const [submittingCancel, setSubmittingCancel] = useState(false);
@@ -63,23 +63,9 @@ export function BuyRequestDetailPage() {
       .then((d) => setOffers(d.offers || [])).catch(console.error);
   }, [publicId]);
 
-  useEffect(() => {
-    if (!request) return;
-    const getRemainingTime = () => {
-      const diff = new Date(request.end_time).getTime() - Date.now();
-      if (diff <= 0) { setTimeLeft('منتهي'); return; }
-      const h = Math.floor(diff / 3600000);
-      const m = Math.floor((diff % 3600000) / 60000);
-      const s = Math.floor((diff % 60000) / 1000);
-      if (h > 24) setTimeLeft(`${Math.floor(h / 24)} يوم`);
-      else if (h > 0) setTimeLeft(`${h}س ${m}د`);
-      else if (m > 0) setTimeLeft(`${m}د ${s}ث`);
-      else setTimeLeft(`${s}ث`);
-    };
-    getRemainingTime();
-    const t = setInterval(getRemainingTime, 1000);
-    return () => clearInterval(t);
-  }, [request]);
+  // Seconds shown here: this is the one countdown on the page, and it is what a
+  // supplier watches while deciding.
+  const { timeLeft, isExpired } = useCountdown(request?.end_time, true);
 
 
   const handleAcceptOffer = async (offerId: string) => {
@@ -130,7 +116,6 @@ export function BuyRequestDetailPage() {
   // it has nothing to do on a merchant screen.
   if (isCarrier(user)) return <Navigate to="/carrier/jobs" replace />;
 
-  const isExpired = timeLeft === 'منتهي';
   const canAcceptOffers = request.is_owner && (request.status === 'active' || request.status === 'pending_selection' || request.status === 'partially_fulfilled') && offers.length > 0;
   const canCancelRequest = request.is_owner && request.status === 'active' && offers.length === 0;
   const canSubmitOffer = !request.is_owner && !request.is_expired && request.status === 'active';

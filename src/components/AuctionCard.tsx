@@ -1,5 +1,5 @@
-import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { useCountdown } from "@/hooks/useCountdown";
 import { Clock, Package, Archive } from "lucide-react";
 import { getImageUrl } from "@/lib/api";
 import { POST_STATUS_TEXT } from "@/lib/postStatus";
@@ -55,45 +55,15 @@ type AuctionCardProps = SellAuctionCardProps | BuyRequestCardProps;
 
 export function AuctionCard(props: AuctionCardProps) {
   const navigate = useNavigate();
-  const [timeLeft, setTimeLeft] = useState<string>("");
-
-  useEffect(() => {
-    const updateTime = () => {
-      const now = Date.now();
-      const endTime = new Date(props.end_time).getTime();
-      const diff = endTime - now;
-
-      if (diff <= 0) {
-        setTimeLeft("منتهي");
-        return;
-      }
-
-      const hours = Math.floor(diff / (1000 * 60 * 60));
-      const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
-      const seconds = Math.floor((diff % (1000 * 60)) / 1000);
-
-      if (hours > 24) {
-        setTimeLeft(`${Math.floor(hours / 24)} يوم`);
-      } else if (hours > 0) {
-        setTimeLeft(`${hours}س ${minutes}د`);
-      } else if (minutes > 0) {
-        setTimeLeft(`${minutes}د ${seconds}ث`);
-      } else {
-        setTimeLeft(`${seconds}ث`);
-      }
-    };
-
-    updateTime();
-    const interval = setInterval(updateTime, 1000);
-    return () => clearInterval(interval);
-  }, [props.end_time]);
+  // No seconds on a card: the label then changes once a minute, so the other 59
+  // ticks are a no-op re-render for every card in the feed. See lib/countdown.ts.
+  const { timeLeft, isExpired } = useCountdown(props.end_time);
 
   const handleClick = () => {
     if (props.type === "sell") navigate(`/auctions/sell/${props.public_id}`);
     else navigate(`/auctions/buy/${props.public_id}`);
   };
 
-  const isExpired = timeLeft === "منتهي";
   const isSell = props.type === "sell";
 
   return (
