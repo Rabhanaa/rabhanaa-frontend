@@ -32,7 +32,11 @@ export function NotificationPrompt() {
       if (Notification.permission === 'granted') {
         toast.success('تم تفعيل الإشعارات');
       }
-    } catch {
+    } catch (err) {
+      // The user gets one sentence; whoever is debugging needs the real cause.
+      // Swallowing it entirely meant a failure here was indistinguishable from
+      // a denied permission, with nothing in the console either way.
+      console.error('[push] enable failed:', err);
       toast.error('تعذر تفعيل الإشعارات');
     } finally {
       setBusy(false);

@@ -14,8 +14,12 @@ export const NotificationListener = () => {
     if (!messaging) return;
     const unsubscribe = onMessage(messaging, (payload) => {
       fetchNotifications();
-      const title = payload.notification?.title ?? '';
-      const description = payload.notification?.body;
+      // The backend sends data-only messages and carries the text in _title /
+      // _body, so payload.notification is always undefined — reading it first
+      // produced a toast with no title and no body at all. sw.ts already reads
+      // them in this order; this is the foreground half of the same rule.
+      const title = payload.data?._title ?? payload.notification?.title ?? '';
+      const description = payload.data?._body ?? payload.notification?.body;
       const link = resolveNotificationLink(payload.data ?? null);
       toast(title, {
         description,

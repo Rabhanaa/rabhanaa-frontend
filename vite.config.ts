@@ -11,6 +11,20 @@ export default defineConfig({
       strategies: 'injectManifest',
       srcDir: 'src',
       filename: 'sw.ts',
+      // Build and register the worker in dev too, otherwise push notifications
+      // cannot be tested locally at all: syncToken() awaits
+      // navigator.serviceWorker.ready, which never resolves without a
+      // registration, so no FCM device token is ever sent to the backend.
+      //
+      // The dev worker is deliberately inert apart from FCM — the precache
+      // manifest is empty and sw.ts skips the navigation route outside a real
+      // build — so it does not cache assets or shadow Vite's dev server.
+      // type: 'module' is required because sw.ts is ESM.
+      devOptions: {
+        enabled: true,
+        type: 'module',
+        suppressWarnings: true,
+      },
       injectManifest: {
         globPatterns: ['**/*.{js,css,html,ico,png,svg,woff2}'],
         globIgnores: ['firebase-messaging-sw.js'],

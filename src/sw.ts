@@ -16,12 +16,20 @@ precacheAndRoute(self.__WB_MANIFEST)
 cleanupOutdatedCaches()
 
 // SPA navigation fallback — serve precached index.html for all navigation requests
-// except API calls and direct asset URLs (files with extensions)
-const navHandler = createHandlerBoundToURL('index.html')
-const navRoute = new NavigationRoute(navHandler, {
-  denylist: [/^\/api\//, /\/[^/?]+\.[^/]+$/],
-})
-registerRoute(navRoute)
+// except API calls and direct asset URLs (files with extensions).
+//
+// Production only. createHandlerBoundToURL throws unless index.html is in the
+// precache manifest, and in dev that manifest is empty — the throw happens
+// during install, so the whole worker dies and takes the FCM handler below with
+// it. Skipping it also keeps Vite's dev server in charge of navigation, which
+// is what we want with HMR.
+if (import.meta.env.PROD) {
+  const navHandler = createHandlerBoundToURL('index.html')
+  const navRoute = new NavigationRoute(navHandler, {
+    denylist: [/^\/api\//, /\/[^/?]+\.[^/]+$/],
+  })
+  registerRoute(navRoute)
+}
 
 // Firebase Cloud Messaging background handler
 const app = initializeApp({
