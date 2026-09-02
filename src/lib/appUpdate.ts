@@ -5,9 +5,10 @@
 // looking at a stale build has no way to ask for the new one — which is exactly
 // how a shipped fix can appear not to have shipped.
 //
-// sw.ts calls skipWaiting() on install and clients.claim() on activate, so a new
-// worker takes over by itself; all this has to do is trigger the check, wait for
-// the takeover, and reload so the page picks up the new assets.
+// A new worker installs and then waits — sw.ts does not skipWaiting() on its
+// own, because that wait is what lets the app ask before replacing itself. So
+// this has to trigger the check, tell the waiting worker to take over, wait for
+// it to activate, then reload for the new assets.
 
 export type UpdateResult = 'updated' | 'current' | 'unsupported';
 
@@ -30,12 +31,22 @@ export async function checkForAppUpdate(): Promise<UpdateResult> {
   if (incoming.state !== 'activated') {
     await new Promise<void>((resolve) => {
       const timer = setTimeout(resolve, ACTIVATION_TIMEOUT_MS);
+
+      const takeOver = () => {
+        // Only a worker that has finished installing can be told to activate;
+        // asking earlier is silently ignored and the button would hang until
+        // the timeout.
+        if (incoming.state === 'installed') incoming.postMessage({ type: 'SKIP_WAITING' });
+      };
+
       incoming.addEventListener('statechange', () => {
+        takeOver();
         if (incoming.state === 'activated' || incoming.state === 'redundant') {
           clearTimeout(timer);
           resolve();
         }
       });
+      takeOver(); // it may already be waiting from an earlier visit
     });
   }
 

@@ -7,8 +7,20 @@ import { resolveNotificationLink } from './lib/notificationLink'
 
 declare const self: ServiceWorkerGlobalScope
 
-// Activate immediately — no waiting for old SW clients to close
-self.addEventListener('install', () => self.skipWaiting())
+// A new worker installs and then WAITS, rather than calling skipWaiting() here.
+//
+// That wait is what makes the update prompt possible: the page can only offer
+// "يوجد تحديث جديد" while a new version sits in the waiting state. Activating on
+// install instead — which this did — took over immediately and, under the old
+// autoUpdate registration, reloaded whatever the user was in the middle of.
+//
+// The page asks for the takeover by posting SKIP_WAITING, which is what
+// vite-plugin-pwa's updateServiceWorker(true) and our own تحديث التطبيق button
+// both send.
+self.addEventListener('message', (event) => {
+  if (event.data?.type === 'SKIP_WAITING') self.skipWaiting()
+})
+
 self.addEventListener('activate', (event) => event.waitUntil(self.clients.claim()))
 
 // Workbox precache — VitePWA injects the manifest array here at build time
