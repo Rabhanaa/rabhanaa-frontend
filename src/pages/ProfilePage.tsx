@@ -5,6 +5,7 @@ import { LogOut, MapPin, Briefcase, Mail, Phone, Loader2 } from "lucide-react";
 import { api } from "@/lib/api";
 import { useApiError } from "@/hooks/useApiError";
 import { deregisterPushToken } from "@/lib/notifications";
+import { isSupplySideRole } from "@/lib/roles";
 
 interface UserProfile {
   public_id: string;
@@ -15,6 +16,12 @@ interface UserProfile {
   is_admin: boolean;
   region_name?: string;
   job_name?: string;
+  // job_id and region_id are only here because /auth/profile takes a whole
+  // profile; the toggle below has to send them back unchanged.
+  job_id?: number;
+  region_id?: number;
+  job_key?: string;
+  supplies_to_retail: boolean;
   interests: number[];
 }
 
@@ -41,6 +48,31 @@ export function ProfilePage() {
 
     fetchUser();
   }, []);
+
+  // Whether this merchant sells to retailers (#7). Until now the answer was
+  // taken once at registration and never editable, which was harmless while
+  // nothing read it — now that retailer feeds filter on it, a merchant who
+  // unticked it by mistake would be invisible with no way back.
+  const [savingSupply, setSavingSupply] = useState(false);
+
+  const handleSuppliesToRetail = async (next: boolean) => {
+    if (!user?.job_id || !user?.region_id) return;
+    const previous = user.supplies_to_retail;
+    setUser({ ...user, supplies_to_retail: next }); // optimistic
+    setSavingSupply(true);
+    try {
+      await api.post("/auth/profile", {
+        job_id: user.job_id,
+        region_id: user.region_id,
+        supplies_to_retail: next,
+      });
+    } catch (err) {
+      setUser({ ...user, supplies_to_retail: previous });
+      handleError(err);
+    } finally {
+      setSavingSupply(false);
+    }
+  };
 
   const handleLogout = async () => {
     setLoading(true);
@@ -121,6 +153,31 @@ export function ProfilePage() {
             </div>
           ))}
         </div>
+
+        {/* Supply to retail (#7) — only the merchant types that retailers are
+            allowed to see, which is the same set asked at registration. */}
+        {isSupplySideRole(user?.job_key) && (
+          <div className="bg-white rounded-3xl shadow-sm border border-gray-100 p-4">
+            <label className="flex cursor-pointer items-center gap-3">
+              <input
+                type="checkbox"
+                checked={!!user?.supplies_to_retail}
+                disabled={savingSupply}
+                onChange={(e) => handleSuppliesToRetail(e.target.checked)}
+                className="size-5 shrink-0 accent-green-600 disabled:opacity-50"
+              />
+              <span className="min-w-0 flex-1">
+                <span className="block text-sm font-bold text-gray-700">أقوم بالتوريد للتجزئة</span>
+                <span className="mt-0.5 block text-xs text-gray-500">
+                  {user?.supplies_to_retail
+                    ? "إعلاناتك تظهر لتجار التجزئة"
+                    : "إعلاناتك لا تظهر لتجار التجزئة"}
+                </span>
+              </span>
+              {savingSupply && <Loader2 className="size-4 animate-spin text-gray-400" />}
+            </label>
+          </div>
+        )}
 
         {/* Logout Button */}
         <button

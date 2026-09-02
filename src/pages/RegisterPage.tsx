@@ -20,6 +20,7 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { API_CONFIG } from '@/lib/api';
+import { SUPPLY_SIDE_ROLES } from '@/lib/roles';
 import { trackPixel } from '@/lib/pixel';
 
 interface Region {
@@ -37,7 +38,6 @@ interface Job {
 
 // Roles the client asked to be offered the retail-supply question. A plain
 // trader or company is not asked.
-const SUPPLY_SIDE_ROLES = ['importer', 'wholesaler', 'distributor', 'processor', 'supplier'];
 
 const SIGNUP_SOURCES: { value: string; label: string }[] = [
   { value: 'facebook',  label: 'فيسبوك' },
