@@ -17,6 +17,7 @@ const COMMISSION_RATE = 'commission_rate_percent';
 const COMMISSION_CLOSE_DAY = 'commission_week_close_day';
 const COMMISSION_GRACE_DAYS = 'commission_grace_days';
 const COMMISSION_REMINDER_DAYS = 'commission_reminder_days';
+const COMMISSION_START_DATE = 'commission_start_date';
 
 const dayLabel: Record<string, string> = {
   saturday: 'السبت', sunday: 'الأحد', monday: 'الإثنين', tuesday: 'الثلاثاء',
@@ -62,7 +63,7 @@ function NumericSetting({
           value={draft}
           onChange={(e) => setDraft(e.target.value)}
           inputMode="decimal"
-          className="h-10 w-32 rounded-md border border-input bg-background px-3 text-sm"
+          className="h-10 w-40 rounded-md border border-input bg-background px-3 text-sm"
         />
         <span className="text-sm text-muted-foreground">{suffix}</span>
         <button
@@ -212,6 +213,15 @@ export function AdminSettingsPage() {
             value={settings[COMMISSION_GRACE_DAYS] ?? ''}
             saving={saving === COMMISSION_GRACE_DAYS}
             onSave={(v) => update(COMMISSION_GRACE_DAYS, v)}
+          />
+
+          <NumericSetting
+            label="بداية احتساب العمولة"
+            help="أقدم صفقة تُحتسب عليها عمولة، بصيغة YYYY-MM-DD. الصفقات المكتملة قبل هذا التاريخ لا تُحاسب — اكتب all لاحتساب كل الصفقات السابقة."
+            suffix=""
+            value={settings[COMMISSION_START_DATE] ?? ''}
+            saving={saving === COMMISSION_START_DATE}
+            onSave={(v) => update(COMMISSION_START_DATE, v)}
           />
 
           <NumericSetting
