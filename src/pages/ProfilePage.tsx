@@ -1,11 +1,13 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuthStore } from "@/stores/auth";
-import { LogOut, MapPin, Briefcase, Mail, Phone, Loader2 } from "lucide-react";
+import { LogOut, MapPin, Briefcase, Mail, Phone, Loader2, RefreshCw } from "lucide-react";
 import { api } from "@/lib/api";
 import { useApiError } from "@/hooks/useApiError";
 import { deregisterPushToken } from "@/lib/notifications";
 import { isSupplySideRole } from "@/lib/roles";
+import { checkForAppUpdate } from "@/lib/appUpdate";
+import { toast } from "sonner";
 
 interface UserProfile {
   public_id: string;
@@ -71,6 +73,22 @@ export function ProfilePage() {
       handleError(err);
     } finally {
       setSavingSupply(false);
+    }
+  };
+
+  const [checkingUpdate, setCheckingUpdate] = useState(false);
+
+  const handleCheckUpdate = async () => {
+    setCheckingUpdate(true);
+    try {
+      const result = await checkForAppUpdate();
+      // 'updated' reloads the page, so only the other two ever land here.
+      if (result === 'current') toast.success("أنت تستخدم أحدث إصدار");
+      if (result === 'unsupported') toast.error("التحديث التلقائي غير متاح على هذا المتصفح");
+    } catch {
+      toast.error("تعذّر التحقق من التحديثات");
+    } finally {
+      setCheckingUpdate(false);
     }
   };
 
@@ -178,6 +196,20 @@ export function ProfilePage() {
             </label>
           </div>
         )}
+
+        {/* Manual update check. The auto-prompt only fires if its 60s poll
+            happens to catch a new worker while the app is open; this is the way
+            out for someone sitting on a stale build. */}
+        <button
+          onClick={handleCheckUpdate}
+          disabled={checkingUpdate}
+          className="w-full h-14 bg-white border-2 border-gray-200 text-gray-700 rounded-2xl font-bold text-base hover:bg-gray-50 active:scale-95 transition-all flex items-center justify-center gap-2 disabled:opacity-60"
+        >
+          {checkingUpdate
+            ? <Loader2 size={18} className="animate-spin" />
+            : <RefreshCw size={18} />}
+          {checkingUpdate ? "جاري التحقق..." : "تحديث التطبيق"}
+        </button>
 
         {/* Logout Button */}
         <button
