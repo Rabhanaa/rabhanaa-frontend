@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { lazy, Suspense, useEffect } from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { useAuthStore } from './stores/auth';
 import { api } from './lib/api';
@@ -20,6 +20,8 @@ import { MyBidsPage } from './pages/MyBidsPage';
 import { OrdersPage } from './pages/OrdersPage';
 import { OrderDetailPage } from './pages/OrderDetailPage';
 import { ProfilePage } from './pages/ProfilePage';
+import { NewsListPage } from './pages/NewsListPage';
+import { NewsArticlePage } from './pages/NewsArticlePage';
 import { ChangePasswordPage } from './pages/ChangePasswordPage';
 import { ForgotPasswordPage } from './pages/ForgotPasswordPage';
 import { CarrierJobsPage } from './pages/carrier/CarrierJobsPage';
@@ -36,6 +38,13 @@ import { AdminDashboardPage } from './pages/admin/AdminDashboardPage';
 import { UsersSearchPage } from './pages/admin/UsersSearchPage';
 import { PendingVerificationPage } from './pages/admin/PendingVerificationPage';
 import { UserDetailPage } from './pages/admin/UserDetailPage';
+import { AdminNewsPage } from './pages/admin/AdminNewsPage';
+import { AdminNewsAnalyticsPage } from './pages/admin/AdminNewsAnalyticsPage';
+// Lazy: the rich-text editor (TipTap/ProseMirror) is about 500 kB that only
+// admins writing news ever need, and would otherwise ship to every member.
+const AdminNewsEditorPage = lazy(() =>
+  import('./pages/admin/AdminNewsEditorPage').then((m) => ({ default: m.AdminNewsEditorPage })),
+);
 import { AdminNotFoundPage } from './pages/admin/AdminNotFoundPage';
 import { AdminIssuesPage } from './pages/admin/AdminIssuesPage';
 import { PostModerationPage } from './pages/admin/PostModerationPage';
@@ -93,6 +102,10 @@ function App() {
           {/* Platform commission (#13). No MainLayout: the screen carries its own
               header and back button, like the other full-page detail views. */}
           <Route path="/commissions" element={<ProtectedRoute><CommissionsPage /></ProtectedRoute>} />
+          {/* News for Pro members. Own headers, like commissions. The pages
+              show the upgrade prompt themselves when the API says PRO_REQUIRED. */}
+          <Route path="/news" element={<ProtectedRoute><NewsListPage /></ProtectedRoute>} />
+          <Route path="/news/:publicId" element={<ProtectedRoute><NewsArticlePage /></ProtectedRoute>} />
           <Route path="/auctions" element={<MainLayout><AuctionsPage /></MainLayout>} />
           <Route path="/auctions/sell/:publicId" element={<MainLayout><SellAuctionDetailPage /></MainLayout>} />
           <Route path="/auctions/buy/:publicId" element={<MainLayout><BuyRequestDetailPage /></MainLayout>} />
@@ -126,6 +139,10 @@ function App() {
             <Route path="issues" element={<AdminIssuesPage />} />
             <Route path="posts" element={<PostModerationPage />} />
             <Route path="commissions" element={<AdminCommissionsPage />} />
+            <Route path="news" element={<AdminNewsPage />} />
+            <Route path="news/new" element={<Suspense fallback={null}><AdminNewsEditorPage /></Suspense>} />
+            <Route path="news/:id" element={<Suspense fallback={null}><AdminNewsEditorPage /></Suspense>} />
+            <Route path="news/:id/analytics" element={<AdminNewsAnalyticsPage />} />
             <Route path="settings" element={<AdminSettingsPage />} />
             <Route path="*" element={<AdminNotFoundPage />} />
           </Route>

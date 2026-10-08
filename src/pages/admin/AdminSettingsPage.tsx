@@ -4,12 +4,16 @@ import { toast } from 'sonner';
 import { api } from '@/lib/api';
 import { useApiError } from '@/hooks/useApiError';
 import { AdminPageHeader } from '@/components/admin/AdminPageHeader';
+import { AISettingsSection } from '@/components/admin/AISettingsSection';
 
 interface SettingsResponse {
   settings: Record<string, string>;
   // The server sends the permitted values rather than the UI hardcoding them,
   // so the two cannot drift apart.
   options: Record<string, string[]>;
+  // API keys are never sent; only a masked hint per key ("" when unset).
+  secrets: Record<string, string>;
+  secrets_available: boolean;
 }
 
 const CARRIER_QUOTE_STAGE = 'carrier_quote_stage';
@@ -82,6 +86,8 @@ export function AdminSettingsPage() {
   const { handleError } = useApiError();
   const [settings, setSettings] = useState<Record<string, string>>({});
   const [options, setOptions] = useState<Record<string, string[]>>({});
+  const [secrets, setSecrets] = useState<Record<string, string>>({});
+  const [secretsAvailable, setSecretsAvailable] = useState(false);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState<string | null>(null);
 
@@ -91,6 +97,8 @@ export function AdminSettingsPage() {
       .then((d) => {
         setSettings(d.settings || {});
         setOptions(d.options || {});
+        setSecrets(d.secrets || {});
+        setSecretsAvailable(!!d.secrets_available);
       })
       .catch(handleError)
       .finally(() => setLoading(false));
@@ -240,6 +248,17 @@ export function AdminSettingsPage() {
           التي حُسبت بها، والفواتير الصادرة لا تتغير.
         </p>
       </div>
+
+      {/* News: AI writers and who is notified on publish */}
+      <AISettingsSection
+        settings={settings}
+        options={options}
+        secrets={secrets}
+        secretsAvailable={secretsAvailable}
+        saving={saving}
+        onUpdate={update}
+        onSecretsChange={setSecrets}
+      />
     </div>
   );
 }

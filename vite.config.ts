@@ -37,7 +37,9 @@ export default defineConfig({
       },
       injectManifest: {
         globPatterns: ['**/*.{js,css,html,ico,png,svg,woff2}'],
-        globIgnores: ['firebase-messaging-sw.js'],
+        // The news editor chunk is admin-only; precaching it would make every
+        // member's install download ~450 kB they never use.
+        globIgnores: ['firebase-messaging-sw.js', '**/AdminNewsEditorPage-*.js'],
       },
       includeAssets: ['leaf.svg', 'icon-192x192.png', 'icon-512x512.png', 'icon-192x192-maskable.png', 'icon-512x512-maskable.png'],
       manifest: {

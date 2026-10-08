@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuthStore } from "@/stores/auth";
-import { LogOut, MapPin, Briefcase, Mail, Phone, Loader2, RefreshCw, Wallet, ChevronLeft, Tags, Pencil } from "lucide-react";
+import { LogOut, MapPin, Briefcase, Mail, Phone, Loader2, RefreshCw, Wallet, ChevronLeft, Tags, Pencil, Newspaper, Crown } from "lucide-react";
 import { api } from "@/lib/api";
 import { useApiError } from "@/hooks/useApiError";
 import { deregisterPushToken } from "@/lib/notifications";
@@ -61,6 +61,16 @@ export function ProfilePage() {
       .get<{ interests: { id: number; name_ar: string }[] }>("/interests")
       .then((d) => setInterestNames(new Map((d.interests || []).map((i) => [i.id, i.name_ar]))))
       .catch(() => { /* the card still offers the edit button */ });
+  }, []);
+
+  // News (Pro only). Null until known, so the row never flashes the wrong state.
+  const [newsStatus, setNewsStatus] = useState<{ is_pro: boolean; unread: number } | null>(null);
+
+  useEffect(() => {
+    api
+      .get<{ is_pro: boolean; unread: number }>("/news/status")
+      .then(setNewsStatus)
+      .catch(() => { /* the row still opens the news page */ });
   }, []);
 
   // Inactive interests are not in /interests, and the edit screen drops them on
@@ -250,6 +260,32 @@ export function ProfilePage() {
             </label>
           </div>
         )}
+
+        {/* News for Pro members. News pushes stay out of the notification list,
+            so this badge is how a member without push finds new stories. */}
+        <button
+          onClick={() => navigate("/news")}
+          className="flex w-full items-center gap-3 rounded-3xl border border-gray-100 bg-white p-4 text-start shadow-sm transition-colors hover:bg-gray-50"
+        >
+          <div className="flex size-9 shrink-0 items-center justify-center rounded-xl bg-green-50">
+            <Newspaper size={16} className="text-green-600" />
+          </div>
+          <div className="min-w-0 flex-1">
+            <p className="text-sm font-bold text-gray-900">أخبار السوق</p>
+            <p className="text-[11px] text-gray-400">آخر أخبار الأسعار والأسواق</p>
+          </div>
+          {newsStatus && !newsStatus.is_pro && (
+            <span className="flex shrink-0 items-center gap-1 rounded-full bg-amber-50 px-2 py-0.5 text-[11px] font-bold text-amber-600">
+              <Crown size={11} /> برو
+            </span>
+          )}
+          {newsStatus?.is_pro && newsStatus.unread > 0 && (
+            <span className="flex h-5 min-w-5 shrink-0 items-center justify-center rounded-full bg-red-500 px-1.5 text-[11px] font-bold text-white">
+              {newsStatus.unread > 9 ? "9+" : newsStatus.unread}
+            </span>
+          )}
+          <ChevronLeft size={18} className="shrink-0 text-gray-300" />
+        </button>
 
         {/* Platform commission (#13). A row rather than a nav tab: the bottom
             bar has no free slot, and this is something a seller checks

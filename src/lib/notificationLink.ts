@@ -121,6 +121,14 @@ export function resolveNotificationLink(
       if (requestId) return `/auctions/buy/${requestId}`
       return '/my-auctions'
 
+    // News for Pro members. Must agree with buildLink in the backend's
+    // lib/firebase, which wins for push taps (it sets _url).
+    case 'news_published': {
+      const newsId = typeof parsed.news_id === 'string' ? parsed.news_id : undefined
+      // src=push is how the tap is counted in the story's analytics.
+      return newsId ? `/news/${newsId}?src=push` : '/news'
+    }
+
     // Platform commission (#13). The invoice lives on the seller's own screen;
     // there is no order or post to open.
     case 'commission_invoice_issued':

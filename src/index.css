@@ -132,3 +132,86 @@ html {
     @apply transition-colors duration-200 hover:text-secondary;
   }
 }
+
+/* News article body. Used by the member article page, the admin preview and
+   the admin editor, so all three render a story identically. */
+@layer components {
+  .news-content {
+    @apply text-[15px] leading-8 text-gray-800 break-words;
+  }
+  .news-content > * + * {
+    @apply mt-4;
+  }
+  .news-content h2 {
+    @apply mt-7 text-xl font-extrabold leading-snug text-gray-900;
+  }
+  .news-content h3 {
+    @apply mt-6 text-lg font-bold leading-snug text-gray-900;
+  }
+  .news-content h4 {
+    @apply mt-5 text-base font-bold text-gray-900;
+  }
+  .news-content p:empty {
+    @apply hidden;
+  }
+  .news-content a {
+    @apply font-semibold text-green-700 underline decoration-green-300 underline-offset-4 hover:decoration-green-700;
+  }
+  .news-content strong {
+    @apply font-bold text-gray-900;
+  }
+  .news-content ul {
+    @apply list-disc ps-6 space-y-1.5;
+  }
+  .news-content ol {
+    @apply list-decimal ps-6 space-y-1.5;
+  }
+  .news-content li::marker {
+    @apply text-green-600;
+  }
+  .news-content blockquote {
+    @apply rounded-e-2xl border-s-4 border-green-500 bg-green-50/70 px-4 py-3 font-semibold text-gray-700;
+  }
+  .news-content img {
+    @apply mx-auto h-auto max-w-full rounded-2xl;
+  }
+  .news-content figure {
+    @apply my-6;
+  }
+  .news-content figcaption {
+    @apply mt-2 text-center text-xs text-gray-500;
+  }
+  .news-content hr {
+    @apply my-8 border-gray-200;
+  }
+  .news-content table {
+    @apply block w-full overflow-x-auto text-sm;
+  }
+  .news-content th,
+  .news-content td {
+    @apply border border-gray-200 px-3 py-2 text-start;
+  }
+  .news-content th {
+    @apply bg-gray-50 font-bold;
+  }
+  .news-content code {
+    @apply rounded bg-gray-100 px-1.5 py-0.5 text-[13px];
+  }
+  /* YouTube: full width at 16:9 whatever size the embed was saved with. */
+  .news-content div[data-youtube-video],
+  .news-content > iframe {
+    @apply my-6;
+  }
+  .news-content iframe {
+    @apply aspect-video h-auto w-full rounded-2xl border-0 bg-black;
+  }
+
+  /* Editor-only affordances. */
+  .news-editor .ProseMirror {
+    @apply min-h-[320px] px-4 py-3 outline-none;
+  }
+  .news-editor .ProseMirror img.ProseMirror-selectednode,
+  .news-editor .ProseMirror div[data-youtube-video].ProseMirror-selectednode iframe {
+    @apply ring-4 ring-green-400;
+  }
+}

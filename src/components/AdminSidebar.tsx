@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { NavLink } from 'react-router-dom';
-import { Search, ClipboardCheck, LayoutDashboard, LogOut, Headset, FileCheck, Settings, Wallet } from 'lucide-react';
+import { Search, ClipboardCheck, LayoutDashboard, LogOut, Headset, FileCheck, Settings, Wallet, Newspaper } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import { useAuthStore } from '@/stores/auth';
@@ -87,6 +87,15 @@ export function AdminSidebar() {
         >
           <Wallet className="h-4 w-4 shrink-0" />
           <span>العمولات</span>
+        </NavLink>
+
+        {/* News for Pro members */}
+        <NavLink
+          to="/admin/news"
+          className={({ isActive }) => cn(baseClass, isActive && activeClass)}
+        >
+          <Newspaper className="h-4 w-4 shrink-0" />
+          <span>الأخبار</span>
         </NavLink>
 
         {/* 5. Platform settings */}
