@@ -57,7 +57,9 @@ export const ERROR_MESSAGES: Record<string, string> = {
   INVALID_REGION_ID:         'المنطقة المحددة غير موجودة',
   INVALID_JOB_ID:            'المهنة المحددة غير موجودة',
   INVALID_PASSWORD:          'كلمة المرور يجب أن تكون 8-16 حرفاً وتحتوي على حرف كبير وصغير ورقم ورمز خاص',
-  INSUFFICIENT_INTERESTS:    'يجب اختيار 5 اهتمامات على الأقل',
+  // The minimum is a setting (MIN_INTERESTS_AT_REGISTRATION), so no number here.
+  INSUFFICIENT_INTERESTS:    'عدد الاهتمامات المختارة أقل من المطلوب',
+  INVALID_INTERESTS:         'بعض الاهتمامات المختارة لم تعد متاحة — حدّث الصفحة واختر مرة أخرى',
   PASSWORD_ALREADY_SET:      'كلمة المرور محددة مسبقاً',
   AUCTION_NOT_FOUND:         'الصفقة غير موجودة',
   AUCTION_NOT_ACTIVE:        'الصفقة غير نشطة',

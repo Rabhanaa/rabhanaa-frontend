@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuthStore } from "@/stores/auth";
-import { LogOut, MapPin, Briefcase, Mail, Phone, Loader2, RefreshCw, Wallet, ChevronLeft } from "lucide-react";
+import { LogOut, MapPin, Briefcase, Mail, Phone, Loader2, RefreshCw, Wallet, ChevronLeft, Tags, Pencil } from "lucide-react";
 import { api } from "@/lib/api";
 import { useApiError } from "@/hooks/useApiError";
 import { deregisterPushToken } from "@/lib/notifications";
@@ -24,7 +24,8 @@ interface UserProfile {
   region_id?: number;
   job_key?: string;
   supplies_to_retail: boolean;
-  interests: number[];
+  // Omitted by the API when empty.
+  interests?: number[];
 }
 
 export function ProfilePage() {
@@ -50,6 +51,23 @@ export function ProfilePage() {
 
     fetchUser();
   }, []);
+
+  // /auth/me only carries interest ids. Null until loaded, so a slow or failed
+  // lookup shows nothing rather than claiming the member has no interests.
+  const [interestNames, setInterestNames] = useState<Map<number, string> | null>(null);
+
+  useEffect(() => {
+    api
+      .get<{ interests: { id: number; name_ar: string }[] }>("/interests")
+      .then((d) => setInterestNames(new Map((d.interests || []).map((i) => [i.id, i.name_ar]))))
+      .catch(() => { /* the card still offers the edit button */ });
+  }, []);
+
+  // Inactive interests are not in /interests, and the edit screen drops them on
+  // save, so only the ones the member can actually manage are listed.
+  const myInterests = interestNames
+    ? (user?.interests ?? []).filter((id) => interestNames.has(id))
+    : [];
 
   // Whether this merchant sells to retailers (#7). Until now the answer was
   // taken once at registration and never editable, which was harmless while
@@ -170,6 +188,42 @@ export function ProfilePage() {
               </div>
             </div>
           ))}
+        </div>
+
+        {/* Interests — what new-listing notifications are matched against. */}
+        <div className="bg-white rounded-3xl shadow-sm border border-gray-100 p-4">
+          <div className="flex items-center gap-3">
+            <div className="flex size-9 shrink-0 items-center justify-center rounded-xl bg-green-50">
+              <Tags size={16} className="text-green-600" />
+            </div>
+            <div className="min-w-0 flex-1">
+              <p className="text-sm font-bold text-gray-900">اهتماماتي</p>
+              <p className="text-[11px] text-gray-400">تصلك إشعارات الصفقات الجديدة فيها</p>
+            </div>
+            <button
+              onClick={() => navigate("/profile/interests")}
+              className="flex shrink-0 items-center gap-1 rounded-xl bg-green-50 px-3 py-1.5 text-xs font-bold text-green-700 transition-colors hover:bg-green-100"
+            >
+              <Pencil size={12} />
+              تعديل
+            </button>
+          </div>
+          {interestNames && (
+            <div className="mt-3 flex flex-wrap gap-1.5">
+              {myInterests.length > 0 ? (
+                myInterests.map((id) => (
+                  <span
+                    key={id}
+                    className="rounded-full border border-green-200 bg-green-50 px-2.5 py-1 text-xs font-bold text-green-700"
+                  >
+                    {interestNames.get(id)}
+                  </span>
+                ))
+              ) : (
+                <p className="text-xs text-gray-400">لم تختر اهتمامات بعد</p>
+              )}
+            </div>
+          )}
         </div>
 
         {/* Supply to retail (#7) — only the merchant types that retailers are

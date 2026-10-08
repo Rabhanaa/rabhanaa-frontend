@@ -102,6 +102,9 @@ function App() {
           <Route path="/orders" element={<ProtectedRoute><MainLayout><OrdersPage /></MainLayout></ProtectedRoute>} />
           <Route path="/orders/:publicId" element={<ProtectedRoute><MainLayout><OrderDetailPage /></MainLayout></ProtectedRoute>} />
           <Route path="/profile" element={<ProtectedRoute><MainLayout><ProfilePage /></MainLayout></ProtectedRoute>} />
+          {/* No MainLayout: the picker's fixed save button sits where the bottom
+              nav would, and the screen has its own back button. */}
+          <Route path="/profile/interests" element={<ProtectedRoute><SelectInterestsPage mode="edit" /></ProtectedRoute>} />
           <Route path="/notifications" element={<ProtectedRoute><MainLayout><NotificationsPage /></MainLayout></ProtectedRoute>} />
           <Route path="/support" element={<ProtectedRoute><MainLayout><SupportPage /></MainLayout></ProtectedRoute>} />
           <Route path="/subscription" element={<ProtectedRoute><SubscriptionPage /></ProtectedRoute>} />

@@ -41,7 +41,8 @@ interface UserDetail {
   region_name: string;
   job_name: string;
   rejection_reason?: string;
-  interests?: string[];
+  // Names, resolved by the API. Omitted when the member has none.
+  interest_names?: string[];
   subscribed: boolean;
   in_trial: boolean;
   created_at: string;
@@ -287,19 +288,22 @@ export function UserDetailPage() {
                 </div>
               )}
 
-              {/* Interests */}
-              {user.interests && user.interests.length > 0 && (
-                <div className="space-y-2">
-                  <p className="text-xs text-muted-foreground font-medium">الاهتمامات</p>
+              {/* Interests — shown even when empty, so "none chosen" is not
+                  mistaken for "not loaded". */}
+              <div className="space-y-2">
+                <p className="text-xs text-muted-foreground font-medium">الاهتمامات</p>
+                {user.interest_names && user.interest_names.length > 0 ? (
                   <div className="flex flex-wrap gap-1">
-                    {user.interests.map((interest) => (
-                      <Badge key={interest} variant="secondary" className="text-xs">
-                        {interest}
+                    {user.interest_names.map((name) => (
+                      <Badge key={name} variant="secondary" className="text-xs">
+                        {name}
                       </Badge>
                     ))}
                   </div>
-                </div>
-              )}
+                ) : (
+                  <p className="text-sm text-muted-foreground">لم يحدد اهتمامات</p>
+                )}
+              </div>
 
               {/* Action buttons by status */}
               <ActionButtons
